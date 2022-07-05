@@ -1,4 +1,4 @@
-package users
+package words
 
 import (
 	"github.com/leomirandadev/improve-your-vocabulary/controllers"
@@ -8,7 +8,7 @@ import (
 
 func New(mid *middlewares.Middleware, router httpRouter.Router, Ctrl *controllers.Container) {
 
-	router.POST("/users", mid.Auth.Admin(Ctrl.User.Create))
-	router.GET("/users/{id}", mid.Auth.Admin(Ctrl.User.GetByID))
-	router.POST("/users/auth", mid.Auth.Public(Ctrl.User.Auth))
+	router.POST("/words", mid.Auth.Public(Ctrl.Word.Create))
+	router.GET("/words", mid.Auth.Public(Ctrl.Word.GetAll))
+	router.GET("/words/{id}", mid.Auth.Public(Ctrl.Word.GetByID))
 }

@@ -1,4 +1,4 @@
-package user
+package word
 
 import (
 	"encoding/json"
@@ -20,8 +20,8 @@ type controllers struct {
 
 type IController interface {
 	Create(w http.ResponseWriter, r *http.Request)
-	Auth(w http.ResponseWriter, r *http.Request)
 	GetByID(w http.ResponseWriter, r *http.Request)
+	GetAll(w http.ResponseWriter, r *http.Request)
 }
 
 func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash) IController {
@@ -29,59 +29,50 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 }
 
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
-	var newUser entities.User
-	json.NewDecoder(r.Body).Decode(&newUser)
+	var newWord entities.WordRequest
+	json.NewDecoder(r.Body).Decode(&newWord)
 
 	ctx := r.Context()
-	err := ctr.srv.User.Create(ctx, newUser)
 
+	wordCreated, err := ctr.srv.Word.Create(ctx, newWord)
 	if err != nil {
-		ctr.log.Error("Ctrl.Create: ", "Error on create user: ", newUser)
+		ctr.log.Error("Ctrl.Create: ", "Error on create word: ", newWord)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newUser)
-}
-
-func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
-	var userLogin entities.UserAuth
-	json.NewDecoder(r.Body).Decode(&userLogin)
-
-	ctx := r.Context()
-	userFound, err := ctr.srv.User.GetUserByLogin(ctx, userLogin)
-
-	if err != nil {
-		ctr.log.Error("Ctrl.Auth: ", "Error on find a user", userLogin)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	token, err := ctr.token.Encrypt(userFound)
-	if err != nil {
-		ctr.log.Error("Ctrl.Auth: ", "Error on generate token", userLogin)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(entities.Response{Token: token})
+	json.NewEncoder(w).Encode(wordCreated)
 }
 
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	idUser, _ := strconv.ParseUint(params["id"], 10, 64)
+	idWord, _ := strconv.ParseUint(params["id"], 10, 64)
 
 	ctx := r.Context()
-	user, err := ctr.srv.User.GetByID(ctx, idUser)
+	word, err := ctr.srv.Word.GetByID(ctx, idWord)
 
 	if err != nil {
-		ctr.log.Error("Ctrl.GetByid: ", "Error get user by id: ", idUser)
+		ctr.log.Error("Ctrl.GetByid: ", "Error get word by id: ", idWord)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(word)
+}
+
+func (ctr *controllers) GetAll(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	words, err := ctr.srv.Word.GetAll(ctx)
+
+	if err != nil {
+		ctr.log.Error("Ctrl.GetAll: ", "Error get all word")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(words)
 }

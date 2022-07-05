@@ -3,7 +3,7 @@ package entities
 import "time"
 
 type User struct {
-	ID        int        `gorm:"primary_key" json:"id"`
+	ID        uint64     `db:"id" json:"id"`
 	NickName  string     `db:"nick_name" json:"nick_name"`
 	Name      string     `json:"name"`
 	Email     string     `json:"email"`
@@ -19,7 +19,7 @@ type UserAuth struct {
 }
 
 type UserResponse struct {
-	ID        int        `gorm:"primary_key" json:"id"`
+	ID        uint64     `db:"id" json:"id"`
 	NickName  string     `db:"nick_name" json:"nick_name"`
 	Name      string     `json:"name"`
 	Email     string     `json:"email"`

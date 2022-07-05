@@ -19,7 +19,7 @@ import (
 
 func main() {
 
-	router, log, tokenHasher, cacheStore, mailSMTP := toolsInit()
+	router, log, tokenHasher, cacheStore, _ := toolsInit()
 
 	repo := repositories.New(repositories.Options{
 		Log:        log,
@@ -31,7 +31,6 @@ func main() {
 		Log:   log,
 		Repo:  repo,
 		Cache: cacheStore,
-		Mail:  mailSMTP,
 	})
 
 	ctrl := controllers.New(controllers.Options{
@@ -56,15 +55,6 @@ func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache
 	log := logger.NewLogrusLog()
 	tokenHasher := token.NewJWT()
 
-	mailSMTP := mail.NewSMTP(mail.SmtpConfigs{
-		UserSender:     "",
-		PasswordSender: "",
-		HostSender:     "",
-		NameSender:     "",
-		EmailSender:    "",
-		Port:           "",
-	})
-
 	cacheStore := cache.NewMemcache(cache.Options{
 		URL: os.Getenv("CACHE_URL"),
 		Expiration: func() time.Duration {
@@ -73,5 +63,5 @@ func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache
 		}(),
 	}, log)
 
-	return router, log, tokenHasher, cacheStore, mailSMTP
+	return router, log, tokenHasher, cacheStore, nil
 }

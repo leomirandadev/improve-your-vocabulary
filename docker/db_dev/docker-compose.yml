@@ -17,7 +17,7 @@ services:
       - db_network
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: golang_mysql
+      MYSQL_DATABASE: improve_your_vocabulary
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     links:
@@ -26,7 +26,5 @@ services:
       - db_network
     ports:
       - 8001:80
-    environment:
-      - PMA_ARBITRARY=1
     environment:
       MYSQL_ROOT_PASSWORD: root

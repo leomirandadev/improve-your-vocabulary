@@ -9,9 +9,9 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 )
 
-type UserService interface {
+type IService interface {
 	Create(ctx context.Context, newUser entities.User) error
-	GetByID(ctx context.Context, ID int64) (entities.UserResponse, error)
+	GetByID(ctx context.Context, ID uint64) (entities.UserResponse, error)
 	GetUserByLogin(ctx context.Context, userLogin entities.UserAuth) (entities.UserResponse, error)
 }
 
@@ -20,7 +20,7 @@ type services struct {
 	log          logger.Logger
 }
 
-func New(repo *repositories.Container, log logger.Logger) UserService {
+func New(repo *repositories.Container, log logger.Logger) IService {
 	return &services{repositories: repo, log: log}
 }
 
@@ -34,7 +34,9 @@ func (srv *services) Create(ctx context.Context, newUser entities.User) error {
 	}
 
 	newUser.Password = passwordHashed
-	return srv.repositories.User.Create(ctx, newUser)
+	_, err := srv.repositories.User.Create(ctx, newUser)
+
+	return err
 }
 
 func (srv *services) GetUserByLogin(ctx context.Context, userLogin entities.UserAuth) (entities.UserResponse, error) {
@@ -62,6 +64,6 @@ func (srv *services) GetUserByLogin(ctx context.Context, userLogin entities.User
 	}, nil
 }
 
-func (srv *services) GetByID(ctx context.Context, ID int64) (entities.UserResponse, error) {
+func (srv *services) GetByID(ctx context.Context, ID uint64) (entities.UserResponse, error) {
 	return srv.repositories.User.GetByID(ctx, ID)
 }
