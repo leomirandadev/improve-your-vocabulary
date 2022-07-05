@@ -10,7 +10,7 @@ import (
 )
 
 type IService interface {
-	Create(ctx context.Context, newUser entities.User) error
+	Create(ctx context.Context, newUser entities.UserRequest) error
 	GetByID(ctx context.Context, ID uint64) (entities.UserResponse, error)
 	GetUserByLogin(ctx context.Context, userLogin entities.UserAuth) (entities.UserResponse, error)
 }
@@ -24,7 +24,7 @@ func New(repo *repositories.Container, log logger.Logger) IService {
 	return &services{repositories: repo, log: log}
 }
 
-func (srv *services) Create(ctx context.Context, newUser entities.User) error {
+func (srv *services) Create(ctx context.Context, newUser entities.UserRequest) error {
 	hasherBcrypt := hasher.NewBcryptHasher()
 	passwordHashed, errHash := hasherBcrypt.Generate(newUser.Password)
 

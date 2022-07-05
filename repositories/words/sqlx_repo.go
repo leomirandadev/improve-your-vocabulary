@@ -22,8 +22,8 @@ func NewSqlx(log logger.Logger, writer, reader *sqlx.DB) IRepository {
 func (repo *repoSqlx) Create(ctx context.Context, newWord entities.WordRequest) (uint64, error) {
 
 	result, err := repo.writer.ExecContext(ctx, `
-		INSERT INTO words (word) VALUES (:word)
-	`, newWord)
+		INSERT INTO words (word) VALUES (?)
+	`, newWord.Word)
 
 	if err != nil {
 		repo.log.ErrorContext(ctx, "Word.SqlxRepo.Create", err)

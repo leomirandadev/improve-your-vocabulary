@@ -19,11 +19,11 @@ func NewSqlx(log logger.Logger, writer, reader *sqlx.DB) IRepository {
 	return &repoSqlx{log: log, writer: writer, reader: reader}
 }
 
-func (repo *repoSqlx) Create(ctx context.Context, newUser entities.User) (uint64, error) {
+func (repo *repoSqlx) Create(ctx context.Context, newUser entities.UserRequest) (uint64, error) {
 
 	result, err := repo.writer.ExecContext(ctx, `
-		INSERT INTO users (nick_name,name,email,password,role) VALUES (:nick_name,:name,:email,:password,:role)
-	`, newUser)
+		INSERT INTO users (nick_name,name,email,password,role) VALUES (?, ?, ?, ?, ?)
+	`, newUser.NickName, newUser.Name, newUser.Email, newUser.Password, newUser.Role)
 
 	if err != nil {
 		repo.log.ErrorContext(ctx, "User.SqlxRepo.Create", err)

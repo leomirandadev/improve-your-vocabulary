@@ -5,8 +5,8 @@ CREATE TABLE meanings(
     word_id INT NOT NULL,
     created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     updated_at datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    
-    PRIMARY KEY (id)
+
+    PRIMARY KEY (id),
     FOREIGN KEY (word_id) REFERENCES words(id)
 );
 

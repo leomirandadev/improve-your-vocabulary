@@ -22,8 +22,8 @@ func NewSqlx(log logger.Logger, writer, reader *sqlx.DB) IRepository {
 func (repo *repoSqlx) Create(ctx context.Context, newMeaning entities.MeaningRequest) (uint64, error) {
 
 	result, err := repo.writer.ExecContext(ctx, `
-		INSERT INTO meanings (meaning, word_id) VALUES (:meaning, :word_id)
-	`, newMeaning)
+		INSERT INTO meanings (meaning, word_id) VALUES (?, ?)
+	`, newMeaning.Meaning, newMeaning.WordID)
 
 	if err != nil {
 		repo.log.ErrorContext(ctx, "Meaning.SqlxRepo.Create", err)

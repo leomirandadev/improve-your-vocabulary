@@ -29,7 +29,7 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 }
 
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
-	var newUser entities.User
+	var newUser entities.UserRequest
 	json.NewDecoder(r.Body).Decode(&newUser)
 
 	ctx := r.Context()
