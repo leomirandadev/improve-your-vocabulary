@@ -1,3 +1,3 @@
-package word
+package words
 
 var CACHE_GET_ALL_WORDS = "CACHE_GET_ALL_WORDS"
