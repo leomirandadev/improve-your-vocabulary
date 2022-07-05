@@ -1,4 +1,4 @@
-package word
+package words
 
 import (
 	"context"
@@ -30,7 +30,13 @@ func (repo *repoSqlx) Create(ctx context.Context, newWord entities.WordRequest) 
 		return 0, errors.New("Não foi possível criar palavra")
 	}
 
-	return result.LastInsertId()
+	id, err := result.LastInsertId()
+	if err != nil {
+		repo.log.ErrorContext(ctx, "Word.SqlxRepo.LastInsertId", err)
+		return 0, errors.New("Não foi possível criar o usuário")
+	}
+
+	return uint64(id), nil
 }
 
 func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (*entities.Word, error) {

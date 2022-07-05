@@ -1,4 +1,4 @@
-package meaning
+package meanings
 
 import (
 	"context"

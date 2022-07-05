@@ -2,17 +2,17 @@ package repositories
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/leomirandadev/improve-your-vocabulary/repositories/meaning"
-	"github.com/leomirandadev/improve-your-vocabulary/repositories/user"
-	"github.com/leomirandadev/improve-your-vocabulary/repositories/word"
+	"github.com/leomirandadev/improve-your-vocabulary/repositories/meanings"
+	"github.com/leomirandadev/improve-your-vocabulary/repositories/users"
+	"github.com/leomirandadev/improve-your-vocabulary/repositories/words"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 )
 
 // Container modelo para exportação dos repositórios instanciados
 type Container struct {
-	User    user.IRepository
-	Word    word.IRepository
-	Meaning meaning.IRepository
+	User    users.IRepository
+	Word    words.IRepository
+	Meaning meanings.IRepository
 }
 
 // Options struct de opções para a criação de uma instancia dos serviços
@@ -25,8 +25,8 @@ type Options struct {
 // New cria uma nova instancia dos repositórios
 func New(opts Options) *Container {
 	return &Container{
-		User:    user.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),
-		Word:    word.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),
-		Meaning: meaning.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),
+		User:    users.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),
+		Word:    words.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),
+		Meaning: meanings.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),
 	}
 }
