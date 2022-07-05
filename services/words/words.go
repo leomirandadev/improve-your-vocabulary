@@ -11,8 +11,8 @@ import (
 
 type IService interface {
 	Create(ctx context.Context, newWord entities.WordRequest) (*entities.Word, error)
-	GetByID(ctx context.Context, ID uint64, userID uint64) (*entities.Word, error)
-	GetAll(ctx context.Context, userID uint64) ([]entities.Word, error)
+	GetByID(ctx context.Context, ID uint64, ownerID uint64) (*entities.Word, error)
+	GetAll(ctx context.Context, ownerID uint64) ([]entities.Word, error)
 }
 
 type services struct {
@@ -41,14 +41,14 @@ func (srv *services) Create(ctx context.Context, newWord entities.WordRequest) (
 	return wordCreated, nil
 }
 
-func (srv *services) GetAll(ctx context.Context, userID uint64) ([]entities.Word, error) {
+func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Word, error) {
 
 	var words []entities.Word
 	if srv.cache.Get(ctx, CACHE_GET_ALL_WORDS, &words) {
 		return words, nil
 	}
 
-	words, err := srv.repositories.Word.GetAll(ctx, userID)
+	words, err := srv.repositories.Word.GetAll(ctx, ownerID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.GetAll", err)
 		return nil, err
@@ -59,9 +59,9 @@ func (srv *services) GetAll(ctx context.Context, userID uint64) ([]entities.Word
 	return words, nil
 }
 
-func (srv *services) GetByID(ctx context.Context, ID uint64, userID uint64) (*entities.Word, error) {
+func (srv *services) GetByID(ctx context.Context, ID uint64, ownerID uint64) (*entities.Word, error) {
 
-	wordWanted, err := srv.repositories.Word.GetByID(ctx, ID, userID)
+	wordWanted, err := srv.repositories.Word.GetByID(ctx, ID, ownerID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.GetByID", ID, err)
 		return nil, err

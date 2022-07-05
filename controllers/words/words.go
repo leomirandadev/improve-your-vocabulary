@@ -50,9 +50,9 @@ func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	wordID, _ := strconv.ParseUint(params["id"], 10, 64)
-	userID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
+	ownerID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
 
-	word, err := ctr.srv.Word.GetByID(ctx, wordID, userID)
+	word, err := ctr.srv.Word.GetByID(ctx, wordID, ownerID)
 	if err != nil {
 		ctr.log.ErrorContext(ctx, "Ctrl.GetByid: ", "Error get word by id: ", wordID)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -65,10 +65,10 @@ func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 
 func (ctr *controllers) GetAll(w http.ResponseWriter, r *http.Request) {
 
-	userID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
+	ownerID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
 
 	ctx := r.Context()
-	words, err := ctr.srv.Word.GetAll(ctx, userID)
+	words, err := ctr.srv.Word.GetAll(ctx, ownerID)
 
 	if err != nil {
 		ctr.log.Error("Ctrl.GetAll: ", "Error get all word")
