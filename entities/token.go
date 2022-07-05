@@ -1,5 +1,5 @@
 package entities
 
-type Response struct {
+type AuthToken struct {
 	Token string `json:"token"`
 }

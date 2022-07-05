@@ -68,7 +68,7 @@ func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(entities.Response{Token: token})
+	json.NewEncoder(w).Encode(entities.AuthToken{Token: token})
 }
 
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
