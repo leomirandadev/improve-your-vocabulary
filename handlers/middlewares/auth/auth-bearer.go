@@ -64,34 +64,35 @@ func (m *middlewareJWT) VerifyRoles(r *http.Request, logged bool, roles ...strin
 	}
 
 	if r.Header["Authorization"] == nil {
+		m.log.Error("authorization nil")
 		return errors.New("WITHOUT_AUTHORIZATION")
 	}
 
 	bearerSplited := strings.Split(r.Header["Authorization"][0], " ")
-
 	if len(bearerSplited) != 2 {
+		m.log.Error("can't split bearer")
 		return errors.New("INVALID_AUTHORIZATION")
 	}
 
-	token, err := m.token.Decrypt(bearerSplited[1])
-
+	isValid, claims, err := m.token.Decrypt(bearerSplited[1])
 	if err != nil {
-		m.log.Error(err)
+		m.log.Error("decrypt", err)
 		return err
 	}
 
-	tokenMap, ok := token.(map[string]interface{})
-	if !ok {
+	if !isValid {
+		m.log.Error("TOKEN NOT VALID")
 		return errors.New("INVALID_AUTHORIZATION")
 	}
 
 	for _, role := range roles {
-		if tokenMap["role"] == role {
-			m.InsertTokenFieldsOnPayload(tokenMap, r)
+		if claims["role"] == role {
+			m.InsertTokenFieldsOnPayload(claims, r)
 			return nil
 		}
 	}
 
+	m.log.Error("role not found")
 	return errors.New("UNAUTHORIZED")
 }
 

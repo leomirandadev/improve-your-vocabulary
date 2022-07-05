@@ -59,6 +59,7 @@ func (srv *services) GetUserByLogin(ctx context.Context, userLogin entities.User
 		NickName:  userFound.NickName,
 		Name:      userFound.Name,
 		Email:     userFound.Email,
+		Role:      userFound.Role,
 		CreatedAt: userFound.CreatedAt,
 		UpdatedAt: userFound.UpdatedAt,
 	}, nil

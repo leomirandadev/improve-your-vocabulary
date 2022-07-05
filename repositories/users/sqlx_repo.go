@@ -85,7 +85,7 @@ func (repo *repoSqlx) GetUserByEmail(ctx context.Context, userLogin entities.Use
 	`, userLogin.Email)
 
 	if err != nil {
-		repo.log.ErrorContext(ctx, "User.SqlxRepo.GetByID", "Error on get User: ", userLogin, err)
+		repo.log.ErrorContext(ctx, "User.SqlxRepo.GetUserByEmail", "Error on get User: ", userLogin, err)
 		return user, errors.New("Usuário não encontrado")
 	}
 

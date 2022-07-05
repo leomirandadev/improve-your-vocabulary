@@ -34,12 +34,22 @@ func (*jwtToken) Encrypt(data interface{}) (string, error) {
 	return tokenString, nil
 }
 
-func (*jwtToken) Decrypt(bearerToken string) (interface{}, error) {
+func (*jwtToken) Decrypt(bearerToken string) (bool, map[string]interface{}, error) {
 
-	return jwt.Parse(bearerToken, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(bearerToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("There was an error")
 		}
 		return mySigningKey, nil
 	})
+
+	var claims map[string]interface{}
+
+	if claimsMap, ok := token.Claims.(jwt.MapClaims); ok {
+		if data, ok := claimsMap["data"]; ok {
+			claims = data.(map[string]interface{})
+		}
+	}
+
+	return token.Valid, claims, err
 }
