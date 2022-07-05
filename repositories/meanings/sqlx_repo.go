@@ -44,7 +44,7 @@ func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (*entities.Meaning
 	var meaning entities.Meaning
 
 	err := repo.reader.GetContext(ctx, &meaning, `
-		SELECT id, meaning, word_id FROM meanings WHERE id = ?
+		SELECT id, meaning, word_id, created_at, updated_at FROM meanings WHERE id = ?
 	`, ID)
 
 	if err != nil {
@@ -60,7 +60,7 @@ func (repo *repoSqlx) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 	meanings := make([]entities.Meaning, 0)
 
 	err := repo.reader.SelectContext(ctx, &meanings, `
-		SELECT id, meaning, word_id FROM meanings
+		SELECT id, meaning, word_id, created_at, updated_at FROM meanings
 	`)
 
 	if err != nil {
