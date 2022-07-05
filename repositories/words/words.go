@@ -1,3 +1,4 @@
+//go:generate mockgen -source words.go -destination mocks/words_mock.go -package mocks
 package words
 
 import (

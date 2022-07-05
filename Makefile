@@ -26,3 +26,6 @@ mig-up:
 
 mig-down: 
 	goose -dir ./migrations mysql $(DB_CONNECTION) down
+
+generate-mock: 
+	go generate ./...

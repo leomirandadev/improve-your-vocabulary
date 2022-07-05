@@ -1,3 +1,4 @@
+//go:generate mockgen -source logger.go -destination mocks/logger_mock.go -package mocks
 package logger
 
 import (
