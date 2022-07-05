@@ -34,6 +34,9 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	ownerID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
+	newWord.UserID = ownerID
+
 	wordCreated, err := ctr.srv.Word.Create(ctx, newWord)
 	if err != nil {
 		ctr.log.Error("Ctrl.Create: ", "Error on create word: ", newWord)

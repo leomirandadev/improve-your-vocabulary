@@ -38,6 +38,8 @@ func (srv *services) Create(ctx context.Context, newWord entities.WordRequest) (
 		return nil, err
 	}
 
+	srv.cache.Del(ctx, CACHE_GET_ALL_WORDS)
+
 	return wordCreated, nil
 }
 
@@ -54,7 +56,7 @@ func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Wor
 		return nil, err
 	}
 
-	srv.cache.Set(ctx, CACHE_GET_ALL_WORDS, words)
+	srv.cache.WithExpiration(CACHE_GET_ALL_WORDS_EXP).Set(ctx, CACHE_GET_ALL_WORDS, words)
 
 	return words, nil
 }

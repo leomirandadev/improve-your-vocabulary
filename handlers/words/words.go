@@ -8,7 +8,7 @@ import (
 
 func New(mid *middlewares.Middleware, router httpRouter.Router, Ctrl *controllers.Container) {
 
-	router.POST("/words", mid.Auth.Public(Ctrl.Word.Create))
-	router.GET("/words", mid.Auth.Public(Ctrl.Word.GetAll))
-	router.GET("/words/{id}", mid.Auth.Public(Ctrl.Word.GetByID))
+	router.POST("/words", mid.Auth.Private(Ctrl.Word.Create))
+	router.GET("/words", mid.Auth.Private(Ctrl.Word.GetAll))
+	router.GET("/words/{id}", mid.Auth.Private(Ctrl.Word.GetByID))
 }

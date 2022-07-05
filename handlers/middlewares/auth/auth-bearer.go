@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/token"
 )
@@ -34,6 +35,23 @@ func (m *middlewareJWT) Public(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 
 		if err := m.VerifyRoles(r, false); err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(Response{Message: "Permissão negada"})
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+
+}
+
+func (m *middlewareJWT) Private(next http.HandlerFunc) http.HandlerFunc {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		w.Header().Set("Content-Type", "application/json")
+
+		if err := m.VerifyRoles(r, true, entities.Roles...); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(Response{Message: "Permissão negada"})
 			return

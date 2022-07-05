@@ -22,7 +22,7 @@ func NewSqlx(log logger.Logger, writer, reader *sqlx.DB) IRepository {
 func (repo *repoSqlx) Create(ctx context.Context, newWord entities.WordRequest) (uint64, error) {
 
 	result, err := repo.writer.ExecContext(ctx, `
-		INSERT INTO words (word) VALUES (?, ?)
+		INSERT INTO words (word, user_id) VALUES (?, ?)
 	`, newWord.Word, newWord.UserID)
 
 	if err != nil {
@@ -60,7 +60,14 @@ func (repo *repoSqlx) GetAll(ctx context.Context, ownerID uint64) ([]entities.Wo
 	words := make([]entities.Word, 0)
 
 	err := repo.reader.SelectContext(ctx, &words, `
-		SELECT id, word, user_id, created_at, updated_at FROM words where user_id = ?
+		SELECT 
+			id,
+			word,
+			user_id,
+			created_at,
+			updated_at
+		FROM words 
+		WHERE user_id = ?
 	`, ownerID)
 
 	if err != nil {

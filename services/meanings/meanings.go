@@ -38,6 +38,8 @@ func (srv *services) Create(ctx context.Context, newMeaning entities.MeaningRequ
 		return nil, err
 	}
 
+	srv.cache.Del(ctx, CACHE_GET_ALL_MEANINGS)
+
 	return meaningCreated, nil
 }
 
@@ -54,7 +56,7 @@ func (srv *services) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 		return nil, err
 	}
 
-	srv.cache.Set(ctx, CACHE_GET_ALL_MEANINGS, meanings)
+	srv.cache.WithExpiration(CACHE_GET_ALL_MEANINGS_EXP).Set(ctx, CACHE_GET_ALL_MEANINGS, meanings)
 
 	return meanings, nil
 }
