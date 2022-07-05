@@ -1,21 +1,15 @@
 package configs
 
 import (
-	"time"
-
+	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
 	Port     string         `mapstructure:"port"`
 	Env      string         `mapstructure:"env"`
-	Cache    ConfigCache    `mapstructure:"cache"`
+	Cache    cache.Options  `mapstructure:"cache"`
 	Database ConfigDatabase `mapstructure:"database"`
-}
-
-type ConfigCache struct {
-	URL        string        `mapstructure:"url"`
-	Expiration time.Duration `mapstructure:"expiration"`
 }
 
 type ConfigDatabase struct {

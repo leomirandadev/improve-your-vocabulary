@@ -18,7 +18,7 @@ import (
 
 func main() {
 
-	router, log, tokenHasher, cacheStore, configs := toolsInit()
+	router, log, tokenGenerator, cacheStore, configs := toolsInit()
 
 	repo := repositories.New(repositories.Options{
 		Log:        log,
@@ -35,36 +35,32 @@ func main() {
 	ctrl := controllers.New(controllers.Options{
 		Log:   log,
 		Srv:   srv,
-		Token: tokenHasher,
+		Token: tokenGenerator,
 	})
 
 	handlers.New(handlers.Options{
 		Ctrl:   ctrl,
 		Router: router,
 		Log:    log,
-		Token:  tokenHasher,
+		Token:  tokenGenerator,
 	})
 
-	log.Info("Run in ", configs.Env)
 	router.SERVE(configs.Port)
 }
 
 func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, configs.Config) {
 	configs, err := configs.LoadConfig(".")
 	if err != nil {
-		log.Fatal("configs not loaded")
+		log.Fatal("configs not loaded", err)
 	}
 
 	router := httpRouter.NewMuxRouter()
 
 	log := logger.NewLogrusLog()
 
-	tokenHasher := token.NewJWT()
+	tokenGenerator := token.NewJWT()
 
-	cacheStore := cache.NewMemcache(cache.Options{
-		URL:        configs.Cache.URL,
-		Expiration: configs.Cache.Expiration,
-	}, log)
+	cacheStore := cache.NewMemcache(configs.Cache, log)
 
-	return router, log, tokenHasher, cacheStore, configs
+	return router, log, tokenGenerator, cacheStore, configs
 }
