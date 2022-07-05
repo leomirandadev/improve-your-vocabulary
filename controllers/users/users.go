@@ -29,6 +29,8 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 }
 
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var newUser entities.UserRequest
 	json.NewDecoder(r.Body).Decode(&newUser)
 
@@ -46,6 +48,8 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var userLogin entities.UserAuth
 	json.NewDecoder(r.Body).Decode(&userLogin)
 
@@ -70,6 +74,8 @@ func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	params := mux.Vars(r)
 	idUser, _ := strconv.ParseUint(params["id"], 10, 64)
 

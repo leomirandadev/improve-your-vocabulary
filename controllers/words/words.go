@@ -29,6 +29,8 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 }
 
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var newWord entities.WordRequest
 	json.NewDecoder(r.Body).Decode(&newWord)
 
@@ -46,6 +48,8 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	params := mux.Vars(r)
 	idWord, _ := strconv.ParseUint(params["id"], 10, 64)
 
@@ -63,6 +67,7 @@ func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctr *controllers) GetAll(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
 	ctx := r.Context()
 	words, err := ctr.srv.Word.GetAll(ctx)
