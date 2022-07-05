@@ -1,10 +1,10 @@
 package main
 
 import (
-	"os"
-	"strconv"
-	"time"
+	"log"
 
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/leomirandadev/improve-your-vocabulary/configs"
 	"github.com/leomirandadev/improve-your-vocabulary/controllers"
 	"github.com/leomirandadev/improve-your-vocabulary/handlers"
@@ -19,12 +19,17 @@ import (
 
 func main() {
 
-	router, log, tokenHasher, cacheStore, _ := toolsInit()
+	configs, err := configs.LoadConfig(".")
+	if err != nil {
+		log.Fatal("configs not loaded")
+	}
+
+	router, log, tokenHasher, cacheStore, _ := toolsInit(configs.Cache)
 
 	repo := repositories.New(repositories.Options{
 		Log:        log,
-		ReaderSqlx: configs.GetReaderSqlx(),
-		WriterSqlx: configs.GetWriterSqlx(),
+		ReaderSqlx: sqlx.MustConnect("mysql", configs.Database.Reader),
+		WriterSqlx: sqlx.MustConnect("mysql", configs.Database.Writer),
 	})
 
 	srv := services.New(services.Options{
@@ -49,18 +54,15 @@ func main() {
 	router.SERVE(":8080")
 }
 
-func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, mail.MailSender) {
+func toolsInit(cacheConfig configs.ConfigCache) (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, mail.MailSender) {
 
 	router := httpRouter.NewMuxRouter()
 	log := logger.NewLogrusLog()
 	tokenHasher := token.NewJWT()
 
 	cacheStore := cache.NewMemcache(cache.Options{
-		URL: os.Getenv("CACHE_URL"),
-		Expiration: func() time.Duration {
-			cacheExpiration, _ := strconv.ParseInt(os.Getenv("CACHE_EXP"), 10, 64)
-			return time.Duration(cacheExpiration)
-		}(),
+		URL:        cacheConfig.URL,
+		Expiration: cacheConfig.Expiration,
 	}, log)
 
 	return router, log, tokenHasher, cacheStore, nil
