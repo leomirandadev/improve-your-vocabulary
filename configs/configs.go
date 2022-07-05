@@ -7,6 +7,8 @@ import (
 )
 
 type Config struct {
+	Port     string         `mapstructure:"port"`
+	Env      string         `mapstructure:"env"`
 	Cache    ConfigCache    `mapstructure:"cache"`
 	Database ConfigDatabase `mapstructure:"database"`
 }

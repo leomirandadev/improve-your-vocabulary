@@ -1,4 +1,6 @@
 {
+    "env": "local",
+    "port":":8080",
     "cache": {
         "url":"127.0.0.1:11211",
         "expiration":"0s"

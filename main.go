@@ -13,18 +13,12 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/httpRouter"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
-	"github.com/leomirandadev/improve-your-vocabulary/utils/mail"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/token"
 )
 
 func main() {
 
-	configs, err := configs.LoadConfig(".")
-	if err != nil {
-		log.Fatal("configs not loaded")
-	}
-
-	router, log, tokenHasher, cacheStore, _ := toolsInit(configs.Cache)
+	router, log, tokenHasher, cacheStore, configs := toolsInit()
 
 	repo := repositories.New(repositories.Options{
 		Log:        log,
@@ -51,19 +45,26 @@ func main() {
 		Token:  tokenHasher,
 	})
 
-	router.SERVE(":8080")
+	log.Info("Run in ", configs.Env)
+	router.SERVE(configs.Port)
 }
 
-func toolsInit(cacheConfig configs.ConfigCache) (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, mail.MailSender) {
+func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, configs.Config) {
+	configs, err := configs.LoadConfig(".")
+	if err != nil {
+		log.Fatal("configs not loaded")
+	}
 
 	router := httpRouter.NewMuxRouter()
+
 	log := logger.NewLogrusLog()
+
 	tokenHasher := token.NewJWT()
 
 	cacheStore := cache.NewMemcache(cache.Options{
-		URL:        cacheConfig.URL,
-		Expiration: cacheConfig.Expiration,
+		URL:        configs.Cache.URL,
+		Expiration: configs.Cache.Expiration,
 	}, log)
 
-	return router, log, tokenHasher, cacheStore, nil
+	return router, log, tokenHasher, cacheStore, configs
 }
