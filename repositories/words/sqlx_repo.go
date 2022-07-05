@@ -39,13 +39,13 @@ func (repo *repoSqlx) Create(ctx context.Context, newWord entities.WordRequest) 
 	return uint64(id), nil
 }
 
-func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (*entities.Word, error) {
+func (repo *repoSqlx) GetByID(ctx context.Context, ID, userID uint64) (*entities.Word, error) {
 
 	var word entities.Word
 
 	err := repo.reader.GetContext(ctx, &word, `
-		SELECT id, word, user_id, created_at, updated_at FROM words WHERE id = ?
-	`, ID)
+		SELECT id, word, user_id, created_at, updated_at FROM words WHERE id = ? AND user_id = ?
+	`, ID, userID)
 
 	if err != nil {
 		repo.log.ErrorContext(ctx, "Word.SqlxRepo.GetByID", "Error on get Word ID: ", ID, err)
@@ -55,13 +55,13 @@ func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (*entities.Word, e
 	return &word, nil
 }
 
-func (repo *repoSqlx) GetAll(ctx context.Context) ([]entities.Word, error) {
+func (repo *repoSqlx) GetAll(ctx context.Context, userID uint64) ([]entities.Word, error) {
 
 	words := make([]entities.Word, 0)
 
 	err := repo.reader.SelectContext(ctx, &words, `
-		SELECT id, word, user_id, created_at, updated_at FROM words
-	`)
+		SELECT id, word, user_id, created_at, updated_at FROM words where user_id = ?
+	`, userID)
 
 	if err != nil {
 		repo.log.ErrorContext(ctx, "Word.SqlxRepo.GetAll", err)

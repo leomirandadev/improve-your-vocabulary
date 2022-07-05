@@ -29,8 +29,6 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 }
 
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	var newWord entities.WordRequest
 	json.NewDecoder(r.Body).Decode(&newWord)
 
@@ -48,16 +46,15 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	ctx := r.Context()
 
 	params := mux.Vars(r)
-	idWord, _ := strconv.ParseUint(params["id"], 10, 64)
+	wordID, _ := strconv.ParseUint(params["id"], 10, 64)
+	userID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
 
-	ctx := r.Context()
-	word, err := ctr.srv.Word.GetByID(ctx, idWord)
-
+	word, err := ctr.srv.Word.GetByID(ctx, wordID, userID)
 	if err != nil {
-		ctr.log.Error("Ctrl.GetByid: ", "Error get word by id: ", idWord)
+		ctr.log.ErrorContext(ctx, "Ctrl.GetByid: ", "Error get word by id: ", wordID)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -67,10 +64,11 @@ func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctr *controllers) GetAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+
+	userID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
 
 	ctx := r.Context()
-	words, err := ctr.srv.Word.GetAll(ctx)
+	words, err := ctr.srv.Word.GetAll(ctx, userID)
 
 	if err != nil {
 		ctr.log.Error("Ctrl.GetAll: ", "Error get all word")

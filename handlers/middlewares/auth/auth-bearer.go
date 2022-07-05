@@ -31,6 +31,8 @@ func (m *middlewareJWT) Public(next http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
+		w.Header().Set("Content-Type", "application/json")
+
 		if err := m.VerifyRoles(r, false); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(Response{Message: "Permissão negada"})
@@ -45,6 +47,8 @@ func (m *middlewareJWT) Public(next http.HandlerFunc) http.HandlerFunc {
 func (m *middlewareJWT) Admin(next http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		w.Header().Set("Content-Type", "application/json")
 
 		if err := m.VerifyRoles(r, true, "admin"); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
