@@ -6,3 +6,4 @@
 - Tests with gomock;
 - Observability;
 - Create a raffle;
+- swagger;
