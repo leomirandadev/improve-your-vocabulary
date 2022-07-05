@@ -65,7 +65,30 @@ func (repo *repoSqlx) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 
 	if err != nil {
 		repo.log.ErrorContext(ctx, "Meaning.SqlxRepo.GetAll", err)
-		return meanings, errors.New("Nenhuma palavra encontrada")
+		return meanings, errors.New("Nenhum significado encontrado")
+	}
+
+	return meanings, nil
+}
+
+func (repo *repoSqlx) GetByWordID(ctx context.Context, wordID uint64) ([]entities.Meaning, error) {
+
+	meanings := make([]entities.Meaning, 0)
+
+	err := repo.reader.SelectContext(ctx, &meanings, `
+		SELECT 
+			id,
+			meaning,
+			word_id,
+			created_at,
+			updated_at
+		FROM meanings
+		WHERE word_id = ?
+	`, wordID)
+
+	if err != nil {
+		repo.log.ErrorContext(ctx, "Meaning.SqlxRepo.GetByWordID", wordID, err)
+		return meanings, errors.New("Nenhum significado encontrado")
 	}
 
 	return meanings, nil
