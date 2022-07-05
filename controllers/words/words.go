@@ -1,4 +1,4 @@
-package word
+package words
 
 import (
 	"encoding/json"
