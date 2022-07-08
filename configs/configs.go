@@ -2,14 +2,16 @@ package configs
 
 import (
 	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer/otel_jaeger"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Port     string         `mapstructure:"port"`
-	Env      string         `mapstructure:"env"`
-	Cache    cache.Options  `mapstructure:"cache"`
-	Database ConfigDatabase `mapstructure:"database"`
+	Port     string              `mapstructure:"port"`
+	Env      string              `mapstructure:"env"`
+	Cache    cache.Options       `mapstructure:"cache"`
+	Tracer   otel_jaeger.Options `mapstructure:"tracer"`
+	Database ConfigDatabase      `mapstructure:"database"`
 }
 
 type ConfigDatabase struct {

@@ -7,6 +7,7 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/repositories"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
 )
 
 type IService interface {
@@ -26,6 +27,9 @@ func New(repo *repositories.Container, log logger.Logger, cache cache.Cache) ISe
 }
 
 func (srv *services) Create(ctx context.Context, newWord entities.WordRequest) (*entities.Word, error) {
+	ctx, tr := tracer.Span(ctx, "services.words.create")
+	defer tr.End()
+
 	id, err := srv.repositories.Word.Create(ctx, newWord)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.Create", err)
@@ -44,6 +48,9 @@ func (srv *services) Create(ctx context.Context, newWord entities.WordRequest) (
 }
 
 func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Word, error) {
+
+	ctx, tr := tracer.Span(ctx, "services.words.get_all")
+	defer tr.End()
 
 	var words []entities.Word
 	if srv.cache.Get(ctx, CACHE_GET_ALL_WORDS, &words) {
@@ -66,6 +73,8 @@ func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Wor
 }
 
 func (srv *services) GetByID(ctx context.Context, ID uint64, ownerID uint64) (*entities.Word, error) {
+	ctx, tr := tracer.Span(ctx, "services.words.get_by_id")
+	defer tr.End()
 
 	wordWanted, err := srv.repositories.Word.GetByID(ctx, ID, ownerID)
 	if err != nil {
@@ -79,6 +88,9 @@ func (srv *services) GetByID(ctx context.Context, ID uint64, ownerID uint64) (*e
 }
 
 func (srv *services) fillMeanings(ctx context.Context, word *entities.Word) {
+	ctx, tr := tracer.Span(ctx, "services.words.fill_meanings")
+	defer tr.End()
+
 	meanings, err := srv.repositories.Meaning.GetByWordID(ctx, word.ID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "fillMeanings")

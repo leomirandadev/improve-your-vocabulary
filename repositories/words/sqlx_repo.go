@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
 )
 
 type repoSqlx struct {
@@ -20,6 +21,8 @@ func NewSqlx(log logger.Logger, writer, reader *sqlx.DB) IRepository {
 }
 
 func (repo *repoSqlx) Create(ctx context.Context, newWord entities.WordRequest) (uint64, error) {
+	ctx, tr := tracer.Span(ctx, "repositories.words.create")
+	defer tr.End()
 
 	result, err := repo.writer.ExecContext(ctx, `
 		INSERT INTO words (word, user_id) VALUES (?, ?)
@@ -40,6 +43,8 @@ func (repo *repoSqlx) Create(ctx context.Context, newWord entities.WordRequest) 
 }
 
 func (repo *repoSqlx) GetByID(ctx context.Context, ID, ownerID uint64) (*entities.Word, error) {
+	ctx, tr := tracer.Span(ctx, "repositories.words.get_by_id")
+	defer tr.End()
 
 	var word entities.Word
 
@@ -56,6 +61,8 @@ func (repo *repoSqlx) GetByID(ctx context.Context, ID, ownerID uint64) (*entitie
 }
 
 func (repo *repoSqlx) GetAll(ctx context.Context, ownerID uint64) ([]entities.Word, error) {
+	ctx, tr := tracer.Span(ctx, "repositories.words.get_all")
+	defer tr.End()
 
 	words := make([]entities.Word, 0)
 

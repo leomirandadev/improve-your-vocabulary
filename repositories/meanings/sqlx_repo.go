@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
 )
 
 type repoSqlx struct {
@@ -72,6 +73,8 @@ func (repo *repoSqlx) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 }
 
 func (repo *repoSqlx) GetByWordID(ctx context.Context, wordID uint64) ([]entities.Meaning, error) {
+	ctx, tr := tracer.Span(ctx, "repositories.meanings.get_by_word_id")
+	defer tr.End()
 
 	meanings := make([]entities.Meaning, 0)
 

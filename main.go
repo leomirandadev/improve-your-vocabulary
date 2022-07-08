@@ -14,11 +14,14 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/utils/httpRouter"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/token"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer/otel_jaeger"
 )
 
 func main() {
 
-	router, log, tokenGenerator, cacheStore, configs := toolsInit()
+	router, log, tokenGenerator, cacheStore, tr, configs := toolsInit()
+	defer tr.Close()
 
 	repo := repositories.New(repositories.Options{
 		Log:        log,
@@ -48,7 +51,7 @@ func main() {
 	router.SERVE(configs.Port)
 }
 
-func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, configs.Config) {
+func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, tracer.ITracer, configs.Config) {
 	configs, err := configs.LoadConfig(".")
 	if err != nil {
 		log.Fatal("configs not loaded", err)
@@ -62,5 +65,14 @@ func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache
 
 	cacheStore := cache.NewMemcache(configs.Cache, log)
 
-	return router, log, tokenGenerator, cacheStore, configs
+	tr := tracer.New(
+		otel_jaeger.NewCollector(otel_jaeger.Options{
+			ServiceName: configs.Tracer.ServiceName,
+			EndpointURL: configs.Tracer.EndpointURL,
+			Username:    configs.Tracer.Username,
+			Password:    configs.Tracer.Password,
+		}),
+	)
+
+	return router, log, tokenGenerator, cacheStore, tr, configs
 }
