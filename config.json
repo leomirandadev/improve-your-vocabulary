@@ -7,7 +7,7 @@
     },
     "tracer": {
         "endpoint_url":"http://localhost:14268/api/traces",
-        "service_name":"iyv",
+        "service_name":"improve_your_vocabulary",
         "username":"",
 		"password":""
     },

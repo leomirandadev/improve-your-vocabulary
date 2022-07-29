@@ -5,7 +5,6 @@ import (
 
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/repositories"
-	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 )
 
@@ -18,54 +17,54 @@ type IService interface {
 type services struct {
 	repositories *repositories.Container
 	log          logger.Logger
-	cache        cache.Cache
 }
 
-func New(repo *repositories.Container, log logger.Logger, cache cache.Cache) IService {
-	return &services{repositories: repo, log: log, cache: cache}
+func New(repo *repositories.Container, log logger.Logger) IService {
+	return &services{repositories: repo, log: log}
 }
 
 func (srv *services) Create(ctx context.Context, newMeaning entities.MeaningRequest) (*entities.Meaning, error) {
-	id, err := srv.repositories.Meaning.Create(ctx, newMeaning)
+	id, err := srv.repositories.Sql.Meaning.Create(ctx, newMeaning)
 	if err != nil {
-		srv.log.ErrorContext(ctx, "Meaning.Service.Create", err)
+		srv.log.ErrorContext(ctx, "Meaning.Service.sql.Create", err)
 		return nil, err
 	}
 
-	meaningCreated, err := srv.repositories.Meaning.GetByID(ctx, id)
+	meaningCreated, err := srv.repositories.Sql.Meaning.GetByID(ctx, id)
 	if err != nil {
-		srv.log.ErrorContext(ctx, "Meaning.Service.GetByID", err)
+		srv.log.ErrorContext(ctx, "Meaning.Service.sql.GetByID", err)
 		return nil, err
 	}
 
-	srv.cache.Del(ctx, CACHE_GET_ALL_MEANINGS)
+	srv.repositories.Cache.Meaning.DeleteAll(ctx)
+	srv.repositories.Cache.Word.DeleteAll(ctx)
 
 	return meaningCreated, nil
 }
 
 func (srv *services) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 
-	var meanings []entities.Meaning
-	if srv.cache.Get(ctx, CACHE_GET_ALL_MEANINGS, &meanings) {
+	if meanings, err := srv.repositories.Cache.Meaning.GetAll(ctx); err == nil {
+		srv.log.ErrorContext(ctx, "Meaning.Service.cache.GetAll", err)
 		return meanings, nil
 	}
 
-	meanings, err := srv.repositories.Meaning.GetAll(ctx)
+	meanings, err := srv.repositories.Sql.Meaning.GetAll(ctx)
 	if err != nil {
-		srv.log.ErrorContext(ctx, "Meaning.Service.GetAll", err)
+		srv.log.ErrorContext(ctx, "Meaning.Service.sql.GetAll", err)
 		return nil, err
 	}
 
-	srv.cache.WithExpiration(CACHE_GET_ALL_MEANINGS_EXP).Set(ctx, CACHE_GET_ALL_MEANINGS, meanings)
+	srv.repositories.Cache.Meaning.SetAll(ctx, meanings)
 
 	return meanings, nil
 }
 
 func (srv *services) GetByID(ctx context.Context, ID uint64) (*entities.Meaning, error) {
 
-	meaningWanted, err := srv.repositories.Meaning.GetByID(ctx, ID)
+	meaningWanted, err := srv.repositories.Sql.Meaning.GetByID(ctx, ID)
 	if err != nil {
-		srv.log.ErrorContext(ctx, "Meaning.Service.GetByID", ID, err)
+		srv.log.ErrorContext(ctx, "Meaning.Service.sql.GetByID", ID, err)
 		return nil, err
 	}
 

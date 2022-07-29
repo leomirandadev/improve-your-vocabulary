@@ -8,8 +8,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/repositories"
-	mocksWordsRepo "github.com/leomirandadev/improve-your-vocabulary/repositories/words/mocks"
-	mocksCache "github.com/leomirandadev/improve-your-vocabulary/utils/cache/mocks"
+	mocksCache "github.com/leomirandadev/improve-your-vocabulary/repositories/cache/words/mocks"
+	mocksWordsRepo "github.com/leomirandadev/improve-your-vocabulary/repositories/sql/words/mocks"
 	mocksLogger "github.com/leomirandadev/improve-your-vocabulary/utils/logger/mocks"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,7 +24,7 @@ func TestCreate(t *testing.T) {
 		input         entities.WordRequest
 		expectedData  *entities.Word
 		expectedError error
-		prepareMocks  func(cache *mocksCache.MockCache, log *mocksLogger.MockLogger, wordsRepo *mocksWordsRepo.MockIRepository)
+		prepareMocks  func(cache *mocksCache.MockICache, log *mocksLogger.MockLogger, wordsRepo *mocksWordsRepo.MockIRepository)
 	}{
 		"Create successfully": {
 			input: entities.WordRequest{
@@ -37,7 +37,7 @@ func TestCreate(t *testing.T) {
 				UserID: userID,
 			},
 			expectedError: nil,
-			prepareMocks: func(cache *mocksCache.MockCache, log *mocksLogger.MockLogger, wordsRepo *mocksWordsRepo.MockIRepository) {
+			prepareMocks: func(cache *mocksCache.MockICache, log *mocksLogger.MockLogger, wordsRepo *mocksWordsRepo.MockIRepository) {
 				wordsRepo.EXPECT().Create(gomock.Any(), entities.WordRequest{
 					Word:   "deserve",
 					UserID: userID,
@@ -49,7 +49,7 @@ func TestCreate(t *testing.T) {
 					UserID: userID,
 				}, nil)
 
-				cache.EXPECT().Del(gomock.Any(), CACHE_GET_ALL_WORDS).Times(1).Return(true)
+				cache.EXPECT().DeleteAll(gomock.Any()).Times(1).Return(nil)
 			},
 		},
 		"Error on insert": {
@@ -59,7 +59,7 @@ func TestCreate(t *testing.T) {
 			},
 			expectedData:  nil,
 			expectedError: errors.New("error on insert"),
-			prepareMocks: func(cache *mocksCache.MockCache, log *mocksLogger.MockLogger, wordsRepo *mocksWordsRepo.MockIRepository) {
+			prepareMocks: func(cache *mocksCache.MockICache, log *mocksLogger.MockLogger, wordsRepo *mocksWordsRepo.MockIRepository) {
 
 				err := errors.New("error on insert")
 
@@ -79,7 +79,7 @@ func TestCreate(t *testing.T) {
 			},
 			expectedData:  nil,
 			expectedError: errors.New("error get by id"),
-			prepareMocks: func(cache *mocksCache.MockCache, log *mocksLogger.MockLogger, wordsRepo *mocksWordsRepo.MockIRepository) {
+			prepareMocks: func(cache *mocksCache.MockICache, log *mocksLogger.MockLogger, wordsRepo *mocksWordsRepo.MockIRepository) {
 
 				err := errors.New("error get by id")
 
@@ -102,7 +102,7 @@ func TestCreate(t *testing.T) {
 			ctr, ctx := gomock.WithContext(context.Background(), t)
 
 			// mock data
-			cache := mocksCache.NewMockCache(ctr)
+			cache := mocksCache.NewMockICache(ctr)
 			log := mocksLogger.NewMockLogger(ctr)
 			wordsRepo := mocksWordsRepo.NewMockIRepository(ctr)
 
@@ -110,7 +110,15 @@ func TestCreate(t *testing.T) {
 			caseTest.prepareMocks(cache, log, wordsRepo)
 
 			// initialize service
-			words := New(&repositories.Container{Word: wordsRepo}, log, cache)
+			container := repositories.Container{
+				Sql: repositories.SqlContainer{
+					Word: wordsRepo,
+				},
+				Cache: repositories.CacheContainer{
+					Word: cache,
+				},
+			}
+			words := New(&container, log)
 
 			// execute function
 			data, err := words.Create(ctx, caseTest.input)

@@ -5,7 +5,6 @@ import (
 
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/repositories"
-	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
 )
@@ -19,30 +18,29 @@ type IService interface {
 type services struct {
 	repositories *repositories.Container
 	log          logger.Logger
-	cache        cache.Cache
 }
 
-func New(repo *repositories.Container, log logger.Logger, cache cache.Cache) IService {
-	return &services{repositories: repo, log: log, cache: cache}
+func New(repo *repositories.Container, log logger.Logger) IService {
+	return &services{repositories: repo, log: log}
 }
 
 func (srv *services) Create(ctx context.Context, newWord entities.WordRequest) (*entities.Word, error) {
 	ctx, tr := tracer.Span(ctx, "services.words.create")
 	defer tr.End()
 
-	id, err := srv.repositories.Word.Create(ctx, newWord)
+	id, err := srv.repositories.Sql.Word.Create(ctx, newWord)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.Create", err)
 		return nil, err
 	}
 
-	wordCreated, err := srv.repositories.Word.GetByID(ctx, id, newWord.UserID)
+	wordCreated, err := srv.repositories.Sql.Word.GetByID(ctx, id, newWord.UserID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.GetByID", err)
 		return nil, err
 	}
 
-	srv.cache.Del(ctx, CACHE_GET_ALL_WORDS)
+	srv.repositories.Cache.Word.DeleteAll(ctx)
 
 	return wordCreated, nil
 }
@@ -52,14 +50,14 @@ func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Wor
 	ctx, tr := tracer.Span(ctx, "services.words.get_all")
 	defer tr.End()
 
-	var words []entities.Word
-	if srv.cache.Get(ctx, CACHE_GET_ALL_WORDS, &words) {
+	if words, err := srv.repositories.Cache.Word.GetAll(ctx, ownerID); err == nil {
+		srv.log.ErrorContext(ctx, "Word.Service.cache.GetAll", err)
 		return words, nil
 	}
 
-	words, err := srv.repositories.Word.GetAll(ctx, ownerID)
+	words, err := srv.repositories.Sql.Word.GetAll(ctx, ownerID)
 	if err != nil {
-		srv.log.ErrorContext(ctx, "Word.Service.GetAll", err)
+		srv.log.ErrorContext(ctx, "Word.Service.sql.GetAll", err)
 		return nil, err
 	}
 
@@ -67,7 +65,7 @@ func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Wor
 		srv.fillMeanings(ctx, &words[i])
 	}
 
-	srv.cache.WithExpiration(CACHE_GET_ALL_WORDS_EXP).Set(ctx, CACHE_GET_ALL_WORDS, words)
+	srv.repositories.Cache.Word.SetAll(ctx, words)
 
 	return words, nil
 }
@@ -76,7 +74,7 @@ func (srv *services) GetByID(ctx context.Context, ID uint64, ownerID uint64) (*e
 	ctx, tr := tracer.Span(ctx, "services.words.get_by_id")
 	defer tr.End()
 
-	wordWanted, err := srv.repositories.Word.GetByID(ctx, ID, ownerID)
+	wordWanted, err := srv.repositories.Sql.Word.GetByID(ctx, ID, ownerID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.GetByID", ID, err)
 		return nil, err
@@ -91,7 +89,7 @@ func (srv *services) fillMeanings(ctx context.Context, word *entities.Word) {
 	ctx, tr := tracer.Span(ctx, "services.words.fill_meanings")
 	defer tr.End()
 
-	meanings, err := srv.repositories.Meaning.GetByWordID(ctx, word.ID)
+	meanings, err := srv.repositories.Sql.Meaning.GetByWordID(ctx, word.ID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "fillMeanings")
 	}

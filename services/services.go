@@ -5,7 +5,6 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/services/meanings"
 	"github.com/leomirandadev/improve-your-vocabulary/services/users"
 	"github.com/leomirandadev/improve-your-vocabulary/services/words"
-	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 )
 
@@ -18,16 +17,15 @@ type Container struct {
 
 // Options struct de opções para a criação de uma instancia dos serviços
 type Options struct {
-	Repo  *repositories.Container
-	Log   logger.Logger
-	Cache cache.Cache
+	Repo *repositories.Container
+	Log  logger.Logger
 }
 
 // New cria uma nova instancia dos serviços
 func New(opts Options) *Container {
 	return &Container{
 		User:    users.New(opts.Repo, opts.Log),
-		Word:    words.New(opts.Repo, opts.Log, opts.Cache),
-		Meaning: meanings.New(opts.Repo, opts.Log, opts.Cache),
+		Word:    words.New(opts.Repo, opts.Log),
+		Meaning: meanings.New(opts.Repo, opts.Log),
 	}
 }

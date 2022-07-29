@@ -27,12 +27,12 @@ func main() {
 		Log:        log,
 		ReaderSqlx: sqlx.MustConnect("mysql", configs.Database.Reader),
 		WriterSqlx: sqlx.MustConnect("mysql", configs.Database.Writer),
+		Cache:      cacheStore,
 	})
 
 	srv := services.New(services.Options{
-		Log:   log,
-		Repo:  repo,
-		Cache: cacheStore,
+		Log:  log,
+		Repo: repo,
 	})
 
 	ctrl := controllers.New(controllers.Options{

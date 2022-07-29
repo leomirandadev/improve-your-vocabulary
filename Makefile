@@ -8,22 +8,22 @@ build:
 	./docker/build-image.sh $(NAME) $(VERSION) $(DB_CONNECTION) $(CACHE_URL) $(CACHE_EXP)
 
 run:
-	go run main.go
+	@go run main.go
 
 run-watch:
-	nodemon --exec go run main.go --signal SIGTERM
+	@nodemon --exec go run main.go --signal SIGTERM
 
 mig-create: 
-	goose -dir ./migrations create $(MIG_NAME) sql 
+	@goose -dir ./migrations create $(MIG_NAME) sql 
 
 mig-status: 
-	goose mysql $(DB_CONNECTION) status
+	@goose mysql $(DB_CONNECTION) status
 
 mig-up: 
-	goose -dir ./migrations mysql $(DB_CONNECTION) up
+	@goose -dir ./migrations mysql $(DB_CONNECTION) up
 
 mig-down: 
-	goose -dir ./migrations mysql $(DB_CONNECTION) down
+	@goose -dir ./migrations mysql $(DB_CONNECTION) down
 
 generate-mock: 
 	go generate ./...
