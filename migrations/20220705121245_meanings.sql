@@ -1,7 +1,8 @@
 -- +goose Up
 CREATE TABLE meanings(
     id INT AUTO_INCREMENT NOT NULL,
-    meaning VARCHAR(200) NOT NULL,
+    meaning VARCHAR(70) NOT NULL,
+    example VARCHAR(200) NOT NULL,
     word_id INT NOT NULL,
     created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     updated_at datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,

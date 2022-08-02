@@ -25,8 +25,8 @@ func (repo *repoSqlx) Create(ctx context.Context, newMeaning entities.MeaningReq
 	defer tr.End()
 
 	result, err := repo.writer.ExecContext(ctx, `
-		INSERT INTO meanings (meaning, word_id) VALUES (?, ?)
-	`, newMeaning.Meaning, newMeaning.WordID)
+		INSERT INTO meanings (meaning, example, word_id) VALUES (?, ?, ?)
+	`, newMeaning.Meaning, newMeaning.Example, newMeaning.WordID)
 
 	if err != nil {
 		repo.log.ErrorContext(ctx, "Meaning.SqlxRepo.Create", err)
@@ -49,7 +49,7 @@ func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (*entities.Meaning
 	var meaning entities.Meaning
 
 	err := repo.reader.GetContext(ctx, &meaning, `
-		SELECT id, meaning, word_id, created_at, updated_at FROM meanings WHERE id = ?
+		SELECT id, meaning, example, word_id, created_at, updated_at FROM meanings WHERE id = ?
 	`, ID)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (repo *repoSqlx) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 	meanings := make([]entities.Meaning, 0)
 
 	err := repo.reader.SelectContext(ctx, &meanings, `
-		SELECT id, meaning, word_id, created_at, updated_at FROM meanings
+		SELECT id, meaning, example, word_id, created_at, updated_at FROM meanings
 	`)
 
 	if err != nil {
@@ -88,6 +88,7 @@ func (repo *repoSqlx) GetByWordID(ctx context.Context, wordID uint64) ([]entitie
 		SELECT 
 			id,
 			meaning,
+			example,
 			word_id,
 			created_at,
 			updated_at
