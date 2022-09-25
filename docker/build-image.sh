@@ -12,6 +12,7 @@ CAT <<EOF > Dockerfile
     FROM alpine:3.7
 
     COPY ./dist/$NAME /opt/$NAME
+    COPY ./config.json /opt/$NAME
 
     WORKDIR /opt
     EXPOSE 8080
