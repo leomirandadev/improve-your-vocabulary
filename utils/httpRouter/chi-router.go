@@ -15,7 +15,7 @@ var (
 	chiDispatcher = chi.NewRouter()
 )
 
-func NewMuxRouter() Router {
+func NewChiRouter() Router {
 	return &chiRouter{}
 }
 

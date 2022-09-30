@@ -60,7 +60,7 @@ func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache
 		log.Fatal("configs not loaded", err)
 	}
 
-	router := httpRouter.NewMuxRouter()
+	router := httpRouter.NewChiRouter()
 
 	log := logger.NewLogrusLog()
 
