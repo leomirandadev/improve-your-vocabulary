@@ -9,7 +9,6 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/mock v1.6.0
-	github.com/gorilla/mux v1.8.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.12.0
