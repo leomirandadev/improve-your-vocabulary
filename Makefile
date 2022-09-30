@@ -4,6 +4,11 @@ NAME = $(shell echo $(CURRENTNAME) | sed 's/\(.\)\([A-Z]\)/\1-\2/g' | tr '[:uppe
 
 DB_CONNECTION = "root:root@(127.0.0.1:3306)/improve_your_vocabulary?charset=utf8mb4,utf8\u0026readTimeout=30s\u0026writeTimeout=30s&parseTime=true"
 
+setup: 
+	npm install -g nodemon
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+	go mod tidy
+
 build: 
 	./docker/build-image.sh $(NAME) $(VERSION)
 
