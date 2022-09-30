@@ -1,7 +1,5 @@
 
-VERSION = $(shell git branch --show-current)
-NAME = $(shell echo $(CURRENTNAME) | sed 's/\(.\)\([A-Z]\)/\1-\2/g' | tr '[:upper:]' '[:lower:]')
-
+NAME = "improve-your-vocabulary"
 DB_CONNECTION = "root:root@(127.0.0.1:3306)/improve_your_vocabulary?charset=utf8mb4,utf8\u0026readTimeout=30s\u0026writeTimeout=30s&parseTime=true"
 
 setup: 
@@ -13,7 +11,16 @@ setup:
 	@go mod tidy
 
 build: 
-	@./docker/build-image.sh $(NAME) $(VERSION)
+	@echo $(NAME): Compilando o micro-serviço
+	@go build -o dist/$(NAME)/main
+	@echo $(NAME): Construindo a imagem
+	@docker build -t $(NAME) .
+
+docker-up: 
+	@docker compose -f "docker/docker-compose.yml" up -d --build
+
+docker-down: 
+	@docker compose -f "docker/docker-compose.yml" down
 
 run:
 	@go run main.go
