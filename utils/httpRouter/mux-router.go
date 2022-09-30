@@ -5,13 +5,15 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
 )
 
-type muxRouter struct{}
+type muxRouter struct {
+	port string
+}
 
 var (
-	muxDispatcher = mux.NewRouter()
+	muxDispatcher = chi.NewRouter()
 )
 
 func NewMuxRouter() Router {
@@ -19,26 +21,32 @@ func NewMuxRouter() Router {
 }
 
 func (*muxRouter) POST(uri string, f http.HandlerFunc) {
-	muxDispatcher.HandleFunc(uri, f).Methods("POST")
+	muxDispatcher.Post(uri, f)
 }
 
 func (*muxRouter) GET(uri string, f http.HandlerFunc) {
-	muxDispatcher.HandleFunc(uri, f).Methods("GET")
+	muxDispatcher.Get(uri, f)
 }
 
 func (*muxRouter) PUT(uri string, f http.HandlerFunc) {
-	muxDispatcher.HandleFunc(uri, f).Methods("PUT")
+	muxDispatcher.Put(uri, f)
 }
 
 func (*muxRouter) PATCH(uri string, f http.HandlerFunc) {
-	muxDispatcher.HandleFunc(uri, f).Methods("PATCH")
+	muxDispatcher.Patch(uri, f)
 }
 
 func (*muxRouter) DELETE(uri string, f http.HandlerFunc) {
-	muxDispatcher.HandleFunc(uri, f).Methods("DELETE")
+	muxDispatcher.Delete(uri, f)
 }
 
-func (*muxRouter) SERVE(port string) {
+func (m *muxRouter) SERVE(port string) {
+	m.port = port
+
 	fmt.Println("Online on http://localhost" + port)
 	log.Fatal(http.ListenAndServe(port, muxDispatcher))
+}
+
+func (m *muxRouter) GetPortExposed() string {
+	return m.port
 }

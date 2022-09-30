@@ -1,12 +1,19 @@
 
+.PHONY: docs
+
 NAME = "improve-your-vocabulary"
 DB_CONNECTION = "root:root@(127.0.0.1:3306)/improve_your_vocabulary?charset=utf8mb4,utf8\u0026readTimeout=30s\u0026writeTimeout=30s&parseTime=true"
+
+docs:
+	@swag init
 
 setup: 
 	@echo "installing nodemon..."
 	@npm install -g nodemon
 	@echo "installing goose..."
 	@go install github.com/pressly/goose/v3/cmd/goose@latest
+	@echo "installing swaggo..."
+	@go install github.com/swaggo/swag/cmd/swag@latest
 	@echo "downloading project dependencies..."
 	@go mod tidy
 

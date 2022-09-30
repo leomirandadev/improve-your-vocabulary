@@ -9,4 +9,5 @@ type Router interface {
 	DELETE(uri string, f http.HandlerFunc)
 	PATCH(uri string, f http.HandlerFunc)
 	SERVE(port string)
+	GetPortExposed() string
 }

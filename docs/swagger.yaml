@@ -1,0 +1,314 @@
+definitions:
+  entities.AuthToken:
+    properties:
+      token:
+        type: string
+    type: object
+  entities.Meaning:
+    properties:
+      created_at:
+        type: string
+      example:
+        type: string
+      id:
+        type: integer
+      meaning:
+        type: string
+      updated_at:
+        type: string
+      word_id:
+        type: integer
+    type: object
+  entities.MeaningRequest:
+    properties:
+      example:
+        type: string
+      meaning:
+        type: string
+      word_id:
+        type: integer
+    type: object
+  entities.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      nick_name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  entities.UserAuth:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  entities.UserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      nick_name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
+  entities.Word:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      meanings:
+        items:
+          $ref: '#/definitions/entities.Meaning'
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      word:
+        type: string
+    type: object
+  entities.WordRequest:
+    properties:
+      user_id:
+        type: integer
+      word:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /meanings:
+    get:
+      consumes:
+      - application/json
+      description: Get all meaning
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Meaning'
+            type: array
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - meaning
+    post:
+      consumes:
+      - application/json
+      description: Create one meaning
+      parameters:
+      - description: add meaning
+        in: body
+        name: meaning
+        required: true
+        schema:
+          $ref: '#/definitions/entities.MeaningRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Meaning'
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - meaning
+  /meanings/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get one meaning
+      parameters:
+      - description: Meaning ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Meaning'
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - meaning
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create one user
+      parameters:
+      - description: create new user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.UserRequest'
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - user
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get one user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.User'
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - user
+  /users/auth:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user
+      parameters:
+      - description: add user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UserAuth'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.AuthToken'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - user
+  /words:
+    get:
+      consumes:
+      - application/json
+      description: Get all word
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Word'
+            type: array
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - word
+    post:
+      consumes:
+      - application/json
+      description: Create one word
+      parameters:
+      - description: add word
+        in: body
+        name: word
+        required: true
+        schema:
+          $ref: '#/definitions/entities.WordRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Word'
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - word
+  /words/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get one word
+      parameters:
+      - description: Word ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Word'
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - word
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

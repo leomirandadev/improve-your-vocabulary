@@ -4,6 +4,7 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/controllers"
 	"github.com/leomirandadev/improve-your-vocabulary/handlers/meanings"
 	"github.com/leomirandadev/improve-your-vocabulary/handlers/middlewares"
+	"github.com/leomirandadev/improve-your-vocabulary/handlers/swagger"
 	"github.com/leomirandadev/improve-your-vocabulary/handlers/users"
 	"github.com/leomirandadev/improve-your-vocabulary/handlers/words"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/httpRouter"
@@ -25,4 +26,5 @@ func New(opts Options) {
 	users.New(mid, opts.Router, opts.Ctrl)
 	words.New(mid, opts.Router, opts.Ctrl)
 	meanings.New(mid, opts.Router, opts.Ctrl)
+	swagger.New(nil, opts.Router, nil)
 }

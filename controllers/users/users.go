@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/services"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
@@ -28,6 +28,16 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 	return &controllers{srv: srv, log: log, token: tokenHasher}
 }
 
+// user swagger document
+// @Description Create one user
+// @Tags user
+// @Param user body entities.UserRequest true "create new user"
+// @Accept json
+// @Produce json
+// @Success 201 {object} entities.UserRequest
+// @Failure 500
+// @Security ApiKeyAuth
+// @Router /users [post]
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 
 	var newUser entities.UserRequest
@@ -46,6 +56,17 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newUser)
 }
 
+// user swagger document
+// @Description Authenticate user
+// @Tags user
+// @Param user body entities.UserAuth true "add user"
+// @Accept json
+// @Produce json
+// @Success 200 {object} entities.AuthToken
+// @Failure 500
+// @Failure 400
+// @Security ApiKeyAuth
+// @Router /users/auth [post]
 func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
 
 	var userLogin entities.UserAuth
@@ -71,11 +92,21 @@ func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(entities.AuthToken{Token: token})
 }
 
+// user swagger document
+// @Description Get one user
+// @Tags user
+// @Param id path string true "User ID"
+// @Accept json
+// @Produce json
+// @Success 200 {object} entities.User
+// @Failure 500
+// @Security ApiKeyAuth
+// @Router /users/{id} [get]
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	params := mux.Vars(r)
-	idUser, _ := strconv.ParseUint(params["id"], 10, 64)
+	id := chi.URLParam(r, "id")
+	idUser, _ := strconv.ParseUint(id, 10, 64)
 
 	user, err := ctr.srv.User.GetByID(ctx, idUser)
 	if err != nil {

@@ -18,6 +18,9 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer/otel_jaeger"
 )
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 
 	router, log, tokenGenerator, cacheStore, tr, configs := toolsInit()
