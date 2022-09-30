@@ -28,13 +28,13 @@ func (srv *services) Create(ctx context.Context, newWord entities.WordRequest) (
 	ctx, tr := tracer.Span(ctx, "services.words.create")
 	defer tr.End()
 
-	id, err := srv.repositories.Sql.Word.Create(ctx, newWord)
+	id, err := srv.repositories.Database.Word.Create(ctx, newWord)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.Create", err)
 		return nil, err
 	}
 
-	wordCreated, err := srv.repositories.Sql.Word.GetByID(ctx, id, newWord.UserID)
+	wordCreated, err := srv.repositories.Database.Word.GetByID(ctx, id, newWord.UserID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.GetByID", err)
 		return nil, err
@@ -55,7 +55,7 @@ func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Wor
 		return words, nil
 	}
 
-	words, err := srv.repositories.Sql.Word.GetAll(ctx, ownerID)
+	words, err := srv.repositories.Database.Word.GetAll(ctx, ownerID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.sql.GetAll", err)
 		return nil, err
@@ -74,7 +74,7 @@ func (srv *services) GetByID(ctx context.Context, ID uint64, ownerID uint64) (*e
 	ctx, tr := tracer.Span(ctx, "services.words.get_by_id")
 	defer tr.End()
 
-	wordWanted, err := srv.repositories.Sql.Word.GetByID(ctx, ID, ownerID)
+	wordWanted, err := srv.repositories.Database.Word.GetByID(ctx, ID, ownerID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Word.Service.GetByID", ID, err)
 		return nil, err
@@ -89,7 +89,7 @@ func (srv *services) fillMeanings(ctx context.Context, word *entities.Word) {
 	ctx, tr := tracer.Span(ctx, "services.words.fill_meanings")
 	defer tr.End()
 
-	meanings, err := srv.repositories.Sql.Meaning.GetByWordID(ctx, word.ID)
+	meanings, err := srv.repositories.Database.Meaning.GetByWordID(ctx, word.ID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "fillMeanings")
 	}

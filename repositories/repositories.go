@@ -4,17 +4,17 @@ import (
 	"github.com/jmoiron/sqlx"
 	meaningsCache "github.com/leomirandadev/improve-your-vocabulary/repositories/cache/meanings"
 	wordsCache "github.com/leomirandadev/improve-your-vocabulary/repositories/cache/words"
-	"github.com/leomirandadev/improve-your-vocabulary/repositories/sql/meanings"
-	"github.com/leomirandadev/improve-your-vocabulary/repositories/sql/users"
-	"github.com/leomirandadev/improve-your-vocabulary/repositories/sql/words"
+	"github.com/leomirandadev/improve-your-vocabulary/repositories/database/meanings"
+	"github.com/leomirandadev/improve-your-vocabulary/repositories/database/users"
+	"github.com/leomirandadev/improve-your-vocabulary/repositories/database/words"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 )
 
 // Container modelo para exportação dos repositórios instanciados
 type Container struct {
-	Sql   SqlContainer
-	Cache CacheContainer
+	Database SqlContainer
+	Cache    CacheContainer
 }
 
 type SqlContainer struct {
@@ -39,7 +39,7 @@ type Options struct {
 // New cria uma nova instancia dos repositórios
 func New(opts Options) *Container {
 	return &Container{
-		Sql: SqlContainer{
+		Database: SqlContainer{
 			User:    users.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),
 			Word:    words.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),
 			Meaning: meanings.NewSqlx(opts.Log, opts.WriterSqlx, opts.ReaderSqlx),

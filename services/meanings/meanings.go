@@ -24,13 +24,13 @@ func New(repo *repositories.Container, log logger.Logger) IService {
 }
 
 func (srv *services) Create(ctx context.Context, newMeaning entities.MeaningRequest) (*entities.Meaning, error) {
-	id, err := srv.repositories.Sql.Meaning.Create(ctx, newMeaning)
+	id, err := srv.repositories.Database.Meaning.Create(ctx, newMeaning)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Meaning.Service.sql.Create", err)
 		return nil, err
 	}
 
-	meaningCreated, err := srv.repositories.Sql.Meaning.GetByID(ctx, id)
+	meaningCreated, err := srv.repositories.Database.Meaning.GetByID(ctx, id)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Meaning.Service.sql.GetByID", err)
 		return nil, err
@@ -49,7 +49,7 @@ func (srv *services) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 		return meanings, nil
 	}
 
-	meanings, err := srv.repositories.Sql.Meaning.GetAll(ctx)
+	meanings, err := srv.repositories.Database.Meaning.GetAll(ctx)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Meaning.Service.sql.GetAll", err)
 		return nil, err
@@ -62,7 +62,7 @@ func (srv *services) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 
 func (srv *services) GetByID(ctx context.Context, ID uint64) (*entities.Meaning, error) {
 
-	meaningWanted, err := srv.repositories.Sql.Meaning.GetByID(ctx, ID)
+	meaningWanted, err := srv.repositories.Database.Meaning.GetByID(ctx, ID)
 	if err != nil {
 		srv.log.ErrorContext(ctx, "Meaning.Service.sql.GetByID", ID, err)
 		return nil, err

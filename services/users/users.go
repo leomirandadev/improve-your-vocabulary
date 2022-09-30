@@ -34,14 +34,14 @@ func (srv *services) Create(ctx context.Context, newUser entities.UserRequest) e
 	}
 
 	newUser.Password = passwordHashed
-	_, err := srv.repositories.Sql.User.Create(ctx, newUser)
+	_, err := srv.repositories.Database.User.Create(ctx, newUser)
 
 	return err
 }
 
 func (srv *services) GetUserByLogin(ctx context.Context, userLogin entities.UserAuth) (entities.UserResponse, error) {
 
-	userFound, err := srv.repositories.Sql.User.GetUserByEmail(ctx, userLogin)
+	userFound, err := srv.repositories.Database.User.GetUserByEmail(ctx, userLogin)
 
 	if err != nil {
 		srv.log.Error("Srv.Auth: ", "User not found", userFound)
@@ -66,5 +66,5 @@ func (srv *services) GetUserByLogin(ctx context.Context, userLogin entities.User
 }
 
 func (srv *services) GetByID(ctx context.Context, ID uint64) (entities.UserResponse, error) {
-	return srv.repositories.Sql.User.GetByID(ctx, ID)
+	return srv.repositories.Database.User.GetByID(ctx, ID)
 }

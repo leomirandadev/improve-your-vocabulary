@@ -9,7 +9,7 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/repositories"
 	mocksCache "github.com/leomirandadev/improve-your-vocabulary/repositories/cache/words/mocks"
-	mocksWordsRepo "github.com/leomirandadev/improve-your-vocabulary/repositories/sql/words/mocks"
+	mocksWordsRepo "github.com/leomirandadev/improve-your-vocabulary/repositories/database/words/mocks"
 	mocksLogger "github.com/leomirandadev/improve-your-vocabulary/utils/logger/mocks"
 	"github.com/stretchr/testify/assert"
 )
@@ -111,7 +111,7 @@ func TestCreate(t *testing.T) {
 
 			// initialize service
 			container := repositories.Container{
-				Sql: repositories.SqlContainer{
+				Database: repositories.SqlContainer{
 					Word: wordsRepo,
 				},
 				Cache: repositories.CacheContainer{
