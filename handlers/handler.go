@@ -26,5 +26,5 @@ func New(opts Options) {
 	users.New(mid, opts.Router, opts.Ctrl)
 	words.New(mid, opts.Router, opts.Ctrl)
 	meanings.New(mid, opts.Router, opts.Ctrl)
-	swagger.New(nil, opts.Router, nil)
+	swagger.New(opts.Router)
 }

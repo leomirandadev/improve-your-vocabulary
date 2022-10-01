@@ -50,7 +50,6 @@ func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Wor
 	defer tr.End()
 
 	if words, err := srv.repositories.Cache.Word.GetAll(ctx, ownerID); err == nil {
-		srv.log.ErrorContext(ctx, "Word.Service.cache.GetAll", err)
 		return words, nil
 	}
 

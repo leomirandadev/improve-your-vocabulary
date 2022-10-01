@@ -1,13 +1,12 @@
 package users
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/services"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/httpRouter"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/token"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
@@ -20,9 +19,9 @@ type controllers struct {
 }
 
 type IController interface {
-	Create(w http.ResponseWriter, r *http.Request)
-	Auth(w http.ResponseWriter, r *http.Request)
-	GetByID(w http.ResponseWriter, r *http.Request)
+	Create(httpCtx httpRouter.Context)
+	Auth(httpCtx httpRouter.Context)
+	GetByID(httpCtx httpRouter.Context)
 }
 
 func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash) IController {
@@ -39,25 +38,24 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /users [post]
-func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+func (ctr *controllers) Create(httpCtx httpRouter.Context) {
+	ctx := httpCtx.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.users.create")
 	defer tr.End()
 
 	var newUser entities.UserRequest
-	json.NewDecoder(r.Body).Decode(&newUser)
+	httpCtx.Decode(&newUser)
 
 	err := ctr.srv.User.Create(ctx, newUser)
 
 	if err != nil {
 		ctr.log.Error("Ctrl.Create: ", "Error on create user: ", newUser)
-		w.WriteHeader(http.StatusInternalServerError)
+		httpCtx.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newUser)
+	httpCtx.JSON(http.StatusCreated, newUser)
 }
 
 // user swagger document
@@ -71,31 +69,30 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 // @Failure 400
 // @Security ApiKeyAuth
 // @Router /users/auth [post]
-func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+func (ctr *controllers) Auth(httpCtx httpRouter.Context) {
+	ctx := httpCtx.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.users.auth")
 	defer tr.End()
 
 	var userLogin entities.UserAuth
-	json.NewDecoder(r.Body).Decode(&userLogin)
+	httpCtx.Decode(&userLogin)
 
 	userFound, err := ctr.srv.User.GetUserByLogin(ctx, userLogin)
 	if err != nil {
 		ctr.log.Error("Ctrl.Auth: ", "Error on find a user", userLogin)
-		w.WriteHeader(http.StatusBadRequest)
+		httpCtx.JSON(http.StatusBadRequest, nil)
 		return
 	}
 
 	token, err := ctr.token.Encrypt(userFound)
 	if err != nil {
 		ctr.log.Error("Ctrl.Auth: ", "Error on generate token", userLogin)
-		w.WriteHeader(http.StatusInternalServerError)
+		httpCtx.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(entities.AuthToken{Token: token})
+	httpCtx.JSON(http.StatusOK, entities.AuthToken{Token: token})
 }
 
 // user swagger document
@@ -108,22 +105,21 @@ func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /users/{id} [get]
-func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+func (ctr *controllers) GetByID(httpCtx httpRouter.Context) {
+	ctx := httpCtx.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.users.get_by_id")
 	defer tr.End()
 
-	id := chi.URLParam(r, "id")
+	id := httpCtx.GetParam("id")
 	idUser, _ := strconv.ParseUint(id, 10, 64)
 
 	user, err := ctr.srv.User.GetByID(ctx, idUser)
 	if err != nil {
 		ctr.log.Error("Ctrl.GetByid: ", "Error get user by id: ", idUser)
-		w.WriteHeader(http.StatusInternalServerError)
+		httpCtx.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	httpCtx.JSON(http.StatusOK, user)
 }

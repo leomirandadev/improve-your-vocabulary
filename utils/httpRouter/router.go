@@ -1,12 +1,26 @@
 package httpRouter
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 type Router interface {
-	GET(uri string, f http.HandlerFunc)
-	POST(uri string, f http.HandlerFunc)
-	PUT(uri string, f http.HandlerFunc)
-	DELETE(uri string, f http.HandlerFunc)
-	PATCH(uri string, f http.HandlerFunc)
+	GET(uri string, f HandlerFunc)
+	POST(uri string, f HandlerFunc)
+	PUT(uri string, f HandlerFunc)
+	DELETE(uri string, f HandlerFunc)
+	PATCH(uri string, f HandlerFunc)
 	SERVE(port string)
+}
+
+type HandlerFunc func(context Context)
+
+type Context interface {
+	Context() context.Context
+	JSON(status int, data interface{})
+	Decode(v interface{})
+	GetParam(param string) string
+	GetFromHeader(param string) string
+	Headers() http.Header
 }
