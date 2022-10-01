@@ -73,8 +73,7 @@ func (ctr *controllers) GetByID(c httpRouter.Context) {
 	ctx, tr := tracer.Span(ctx, "controllers.meanings.get_by_id")
 	defer tr.End()
 
-	id := c.GetParam("id")
-	idMeaning, _ := strconv.ParseUint(id, 10, 64)
+	idMeaning, _ := strconv.ParseUint(c.GetParam("id"), 10, 64)
 
 	meaning, err := ctr.srv.Meaning.GetByID(ctx, idMeaning)
 	if err != nil {

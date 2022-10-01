@@ -47,9 +47,7 @@ func (ctr *controllers) Create(c httpRouter.Context) {
 	var newUser entities.UserRequest
 	c.Decode(&newUser)
 
-	err := ctr.srv.User.Create(ctx, newUser)
-
-	if err != nil {
+	if err := ctr.srv.User.Create(ctx, newUser); err != nil {
 		ctr.log.Error("Ctrl.Create: ", "Error on create user: ", newUser)
 		c.JSON(http.StatusInternalServerError, nil)
 		return
@@ -111,8 +109,7 @@ func (ctr *controllers) GetByID(c httpRouter.Context) {
 	ctx, tr := tracer.Span(ctx, "controllers.users.get_by_id")
 	defer tr.End()
 
-	id := c.GetParam("id")
-	idUser, _ := strconv.ParseUint(id, 10, 64)
+	idUser, _ := strconv.ParseUint(c.GetParam("id"), 10, 64)
 
 	user, err := ctr.srv.User.GetByID(ctx, idUser)
 	if err != nil {

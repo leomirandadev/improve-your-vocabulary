@@ -47,8 +47,7 @@ func (ctr *controllers) Create(c httpRouter.Context) {
 	var newWord entities.WordRequest
 	c.Decode(&newWord)
 
-	ownerID, _ := strconv.ParseUint(c.GetParam("payload_id"), 10, 64)
-	newWord.UserID = ownerID
+	newWord.UserID, _ = strconv.ParseUint(c.GetParam("payload_id"), 10, 64)
 
 	wordCreated, err := ctr.srv.Word.Create(ctx, newWord)
 	if err != nil {
@@ -76,8 +75,7 @@ func (ctr *controllers) GetByID(c httpRouter.Context) {
 	ctx, tr := tracer.Span(ctx, "controllers.words.get_by_id")
 	defer tr.End()
 
-	id := c.GetParam("id")
-	wordID, _ := strconv.ParseUint(id, 10, 64)
+	wordID, _ := strconv.ParseUint(c.GetParam("id"), 10, 64)
 	ownerID, _ := strconv.ParseUint(c.GetParam("payload_id"), 10, 64)
 
 	word, err := ctr.srv.Word.GetByID(ctx, wordID, ownerID)
