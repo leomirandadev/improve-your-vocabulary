@@ -4,7 +4,7 @@
 - [x] Observability;
 - [x] Change cache calls to repository;
 - [x] Complete all observability;
-- [ ] Complete all tests;
-- [ ] Change http layer;
+- [x] Change http layer;
 - [x] Swagger;
+- [ ] Complete all tests;
 - [ ] Save user token and recover jwt from db and/or cache;
