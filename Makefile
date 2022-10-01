@@ -29,20 +29,20 @@ docker-up:
 docker-down: 
 	@docker compose -f "docker/docker-compose.yml" down
 
-up-dev: 
+up-local: 
 	@docker compose -f "docker/db_dev/docker-compose.yml" up -d --build
 	@docker compose -f "docker/memcached_dev/docker-compose.yml" up -d --build
 	@docker compose -f "docker/tracer_dev/docker-compose.yml" up -d --build
 
-down-dev: 
+down-local: 
 	@docker compose -f "docker/db_dev/docker-compose.yml" down
 	@docker compose -f "docker/memcached_dev/docker-compose.yml" down
 	@docker compose -f "docker/tracer_dev/docker-compose.yml" down
 
-run: up-dev
+run: up-local
 	@go run main.go
 
-run-watch: up-dev
+run-watch: up-local
 	@nodemon --exec go run main.go --signal SIGTERM
 
 mig-create: 
