@@ -19,9 +19,9 @@ type controllers struct {
 }
 
 type IController interface {
-	Create(httpCtx httpRouter.Context)
-	GetByID(httpCtx httpRouter.Context)
-	GetAll(httpCtx httpRouter.Context)
+	Create(c httpRouter.Context)
+	GetByID(c httpRouter.Context)
+	GetAll(c httpRouter.Context)
 }
 
 func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash) IController {
@@ -38,23 +38,23 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /meanings [post]
-func (ctr *controllers) Create(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) Create(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.meanings.create")
 	defer tr.End()
 
 	var newMeaning entities.MeaningRequest
-	httpCtx.Decode(&newMeaning)
+	c.Decode(&newMeaning)
 
 	meaningCreated, err := ctr.srv.Meaning.Create(ctx, newMeaning)
 	if err != nil {
 		ctr.log.Error("Ctrl.Create: ", "Error on create meaning: ", newMeaning)
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusCreated, meaningCreated)
+	c.JSON(http.StatusCreated, meaningCreated)
 }
 
 // meaning swagger document
@@ -67,23 +67,23 @@ func (ctr *controllers) Create(httpCtx httpRouter.Context) {
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /meanings/{id} [get]
-func (ctr *controllers) GetByID(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) GetByID(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.meanings.get_by_id")
 	defer tr.End()
 
-	id := httpCtx.GetParam("id")
+	id := c.GetParam("id")
 	idMeaning, _ := strconv.ParseUint(id, 10, 64)
 
 	meaning, err := ctr.srv.Meaning.GetByID(ctx, idMeaning)
 	if err != nil {
 		ctr.log.Error("Ctrl.GetByID: ", "Error get meaning by id: ", idMeaning)
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusOK, meaning)
+	c.JSON(http.StatusOK, meaning)
 }
 
 // meaning swagger document
@@ -95,8 +95,8 @@ func (ctr *controllers) GetByID(httpCtx httpRouter.Context) {
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /meanings [get]
-func (ctr *controllers) GetAll(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) GetAll(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.meanings.get_all")
 	defer tr.End()
@@ -104,9 +104,9 @@ func (ctr *controllers) GetAll(httpCtx httpRouter.Context) {
 	meanings, err := ctr.srv.Meaning.GetAll(ctx)
 	if err != nil {
 		ctr.log.Error("Ctrl.GetAll: ", "Error get all meaning")
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusOK, meanings)
+	c.JSON(http.StatusOK, meanings)
 }

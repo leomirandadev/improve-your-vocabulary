@@ -19,9 +19,9 @@ type controllers struct {
 }
 
 type IController interface {
-	Create(httpCtx httpRouter.Context)
-	Auth(httpCtx httpRouter.Context)
-	GetByID(httpCtx httpRouter.Context)
+	Create(c httpRouter.Context)
+	Auth(c httpRouter.Context)
+	GetByID(c httpRouter.Context)
 }
 
 func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash) IController {
@@ -38,24 +38,24 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /users [post]
-func (ctr *controllers) Create(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) Create(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.users.create")
 	defer tr.End()
 
 	var newUser entities.UserRequest
-	httpCtx.Decode(&newUser)
+	c.Decode(&newUser)
 
 	err := ctr.srv.User.Create(ctx, newUser)
 
 	if err != nil {
 		ctr.log.Error("Ctrl.Create: ", "Error on create user: ", newUser)
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusCreated, newUser)
+	c.JSON(http.StatusCreated, newUser)
 }
 
 // user swagger document
@@ -69,30 +69,30 @@ func (ctr *controllers) Create(httpCtx httpRouter.Context) {
 // @Failure 400
 // @Security ApiKeyAuth
 // @Router /users/auth [post]
-func (ctr *controllers) Auth(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) Auth(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.users.auth")
 	defer tr.End()
 
 	var userLogin entities.UserAuth
-	httpCtx.Decode(&userLogin)
+	c.Decode(&userLogin)
 
 	userFound, err := ctr.srv.User.GetUserByLogin(ctx, userLogin)
 	if err != nil {
 		ctr.log.Error("Ctrl.Auth: ", "Error on find a user", userLogin)
-		httpCtx.JSON(http.StatusBadRequest, nil)
+		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
 
 	token, err := ctr.token.Encrypt(userFound)
 	if err != nil {
 		ctr.log.Error("Ctrl.Auth: ", "Error on generate token", userLogin)
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusOK, entities.AuthToken{Token: token})
+	c.JSON(http.StatusOK, entities.AuthToken{Token: token})
 }
 
 // user swagger document
@@ -105,21 +105,21 @@ func (ctr *controllers) Auth(httpCtx httpRouter.Context) {
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /users/{id} [get]
-func (ctr *controllers) GetByID(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) GetByID(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.users.get_by_id")
 	defer tr.End()
 
-	id := httpCtx.GetParam("id")
+	id := c.GetParam("id")
 	idUser, _ := strconv.ParseUint(id, 10, 64)
 
 	user, err := ctr.srv.User.GetByID(ctx, idUser)
 	if err != nil {
 		ctr.log.Error("Ctrl.GetByid: ", "Error get user by id: ", idUser)
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, user)
 }

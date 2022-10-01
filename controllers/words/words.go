@@ -19,9 +19,9 @@ type controllers struct {
 }
 
 type IController interface {
-	Create(httpCtx httpRouter.Context)
-	GetByID(httpCtx httpRouter.Context)
-	GetAll(httpCtx httpRouter.Context)
+	Create(c httpRouter.Context)
+	GetByID(c httpRouter.Context)
+	GetAll(c httpRouter.Context)
 }
 
 func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash) IController {
@@ -38,26 +38,26 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /words [post]
-func (ctr *controllers) Create(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) Create(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.words.create")
 	defer tr.End()
 
 	var newWord entities.WordRequest
-	httpCtx.Decode(&newWord)
+	c.Decode(&newWord)
 
-	ownerID, _ := strconv.ParseUint(httpCtx.GetParam("payload_id"), 10, 64)
+	ownerID, _ := strconv.ParseUint(c.GetParam("payload_id"), 10, 64)
 	newWord.UserID = ownerID
 
 	wordCreated, err := ctr.srv.Word.Create(ctx, newWord)
 	if err != nil {
 		ctr.log.Error("Ctrl.Create: ", "Error on create word: ", newWord)
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusCreated, wordCreated)
+	c.JSON(http.StatusCreated, wordCreated)
 }
 
 // word swagger document
@@ -70,24 +70,24 @@ func (ctr *controllers) Create(httpCtx httpRouter.Context) {
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /words/{id} [get]
-func (ctr *controllers) GetByID(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) GetByID(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.words.get_by_id")
 	defer tr.End()
 
-	id := httpCtx.GetParam("id")
+	id := c.GetParam("id")
 	wordID, _ := strconv.ParseUint(id, 10, 64)
-	ownerID, _ := strconv.ParseUint(httpCtx.GetParam("payload_id"), 10, 64)
+	ownerID, _ := strconv.ParseUint(c.GetParam("payload_id"), 10, 64)
 
 	word, err := ctr.srv.Word.GetByID(ctx, wordID, ownerID)
 	if err != nil {
 		ctr.log.ErrorContext(ctx, "Ctrl.GetByid: ", "Error get word by id: ", wordID)
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusOK, word)
+	c.JSON(http.StatusOK, word)
 }
 
 // word swagger document
@@ -99,20 +99,20 @@ func (ctr *controllers) GetByID(httpCtx httpRouter.Context) {
 // @Failure 500
 // @Security ApiKeyAuth
 // @Router /words [get]
-func (ctr *controllers) GetAll(httpCtx httpRouter.Context) {
-	ctx := httpCtx.Context()
+func (ctr *controllers) GetAll(c httpRouter.Context) {
+	ctx := c.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.words.get_all")
 	defer tr.End()
 
-	ownerID, _ := strconv.ParseUint(httpCtx.GetFromHeader("payload_id"), 10, 64)
+	ownerID, _ := strconv.ParseUint(c.GetFromHeader("payload_id"), 10, 64)
 
 	words, err := ctr.srv.Word.GetAll(ctx, ownerID)
 	if err != nil {
 		ctr.log.Error("Ctrl.GetAll: ", "Error get all word")
-		httpCtx.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
-	httpCtx.JSON(http.StatusOK, words)
+	c.JSON(http.StatusOK, words)
 }

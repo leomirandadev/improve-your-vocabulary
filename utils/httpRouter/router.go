@@ -15,7 +15,7 @@ type Router interface {
 	SERVE(port string)
 }
 
-type HandlerFunc func(context Context)
+type HandlerFunc func(c Context)
 
 type Context interface {
 	Context() context.Context
