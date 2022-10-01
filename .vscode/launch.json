@@ -8,9 +8,10 @@
       "name": "Run in Local",
       "type": "go",
       "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}/main.go",
-      "args": []
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd",
+      "asRoot": true,
+      "args": [],
     },
   ]
 }

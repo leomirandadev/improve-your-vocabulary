@@ -1,7 +1,7 @@
 FROM alpine:3.7
 
 COPY ./dist/improve-your-vocabulary/main /app/improve-your-vocabulary/main
-COPY ./config.json /app/improve-your-vocabulary/main
+COPY ./cmd/config.json /app/improve-your-vocabulary/main
 
 WORKDIR /app
 

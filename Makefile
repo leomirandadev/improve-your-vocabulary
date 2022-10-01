@@ -40,10 +40,10 @@ down-local:
 	@docker compose -f "docker/tracer_dev/docker-compose.yml" down
 
 run: up-local
-	@go run cmd/main.go
+	@cd cmd && go run main.go
 
 run-watch: up-local
-	@nodemon --exec go run cmd/main.go --signal SIGTERM
+	@cd cmd && nodemon --exec go run main.go --signal SIGTERM
 
 mig-create: 
 	@goose -dir ./migrations create $(MIG_NAME) sql 
