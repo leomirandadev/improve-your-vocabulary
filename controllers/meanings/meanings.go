@@ -10,6 +10,7 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/services"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/token"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
 )
 
 type controllers struct {
@@ -39,10 +40,13 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 // @Security ApiKeyAuth
 // @Router /meanings [post]
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx, tr := tracer.Span(ctx, "controllers.meanings.create")
+	defer tr.End()
+
 	var newMeaning entities.MeaningRequest
 	json.NewDecoder(r.Body).Decode(&newMeaning)
-
-	ctx := r.Context()
 
 	meaningCreated, err := ctr.srv.Meaning.Create(ctx, newMeaning)
 	if err != nil {
@@ -66,10 +70,13 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 // @Security ApiKeyAuth
 // @Router /meanings/{id} [get]
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx, tr := tracer.Span(ctx, "controllers.meanings.get_by_id")
+	defer tr.End()
+
 	id := chi.URLParam(r, "id")
 	idMeaning, _ := strconv.ParseUint(id, 10, 64)
-
-	ctx := r.Context()
 
 	meaning, err := ctr.srv.Meaning.GetByID(ctx, idMeaning)
 	if err != nil {
@@ -93,6 +100,9 @@ func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Router /meanings [get]
 func (ctr *controllers) GetAll(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	ctx, tr := tracer.Span(ctx, "controllers.meanings.get_all")
+	defer tr.End()
 
 	meanings, err := ctr.srv.Meaning.GetAll(ctx)
 	if err != nil {

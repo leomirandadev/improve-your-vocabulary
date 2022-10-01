@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/leomirandadev/improve-your-vocabulary/entities"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
 )
 
 type repoSqlx struct {
@@ -20,6 +21,8 @@ func NewSqlx(log logger.Logger, writer, reader *sqlx.DB) IRepository {
 }
 
 func (repo *repoSqlx) Create(ctx context.Context, newUser entities.UserRequest) (uint64, error) {
+	ctx, tr := tracer.Span(ctx, "repositories.database.users.create")
+	defer tr.End()
 
 	result, err := repo.writer.ExecContext(ctx, `
 		INSERT INTO users (nick_name,name,email,password,role) VALUES (?, ?, ?, ?, ?)
@@ -40,6 +43,8 @@ func (repo *repoSqlx) Create(ctx context.Context, newUser entities.UserRequest) 
 }
 
 func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (entities.UserResponse, error) {
+	ctx, tr := tracer.Span(ctx, "repositories.database.users.get_by_id")
+	defer tr.End()
 
 	var user entities.UserResponse
 
@@ -67,6 +72,9 @@ func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (entities.UserResp
 }
 
 func (repo *repoSqlx) GetUserByEmail(ctx context.Context, userLogin entities.UserAuth) (entities.User, error) {
+	ctx, tr := tracer.Span(ctx, "repositories.database.users.get_user_by_email")
+	defer tr.End()
+
 	var user entities.User
 
 	err := repo.reader.GetContext(ctx, &user, `

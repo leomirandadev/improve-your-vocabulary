@@ -7,6 +7,7 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/repositories"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/hasher"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
 )
 
 type IService interface {
@@ -25,6 +26,9 @@ func New(repo *repositories.Container, log logger.Logger) IService {
 }
 
 func (srv *services) Create(ctx context.Context, newUser entities.UserRequest) error {
+	ctx, tr := tracer.Span(ctx, "services.users.create")
+	defer tr.End()
+
 	hasherBcrypt := hasher.NewBcryptHasher()
 	passwordHashed, errHash := hasherBcrypt.Generate(newUser.Password)
 
@@ -40,6 +44,8 @@ func (srv *services) Create(ctx context.Context, newUser entities.UserRequest) e
 }
 
 func (srv *services) GetUserByLogin(ctx context.Context, userLogin entities.UserAuth) (entities.UserResponse, error) {
+	ctx, tr := tracer.Span(ctx, "services.users.get_user_by_login")
+	defer tr.End()
 
 	userFound, err := srv.repositories.Database.User.GetUserByEmail(ctx, userLogin)
 
@@ -66,5 +72,8 @@ func (srv *services) GetUserByLogin(ctx context.Context, userLogin entities.User
 }
 
 func (srv *services) GetByID(ctx context.Context, ID uint64) (entities.UserResponse, error) {
+	ctx, tr := tracer.Span(ctx, "services.users.get_by_id")
+	defer tr.End()
+
 	return srv.repositories.Database.User.GetByID(ctx, ID)
 }

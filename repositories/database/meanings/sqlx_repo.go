@@ -21,7 +21,7 @@ func NewSqlx(log logger.Logger, writer, reader *sqlx.DB) IRepository {
 }
 
 func (repo *repoSqlx) Create(ctx context.Context, newMeaning entities.MeaningRequest) (uint64, error) {
-	ctx, tr := tracer.Span(ctx, "repositories.sql.meanings.create")
+	ctx, tr := tracer.Span(ctx, "repositories.database.meanings.create")
 	defer tr.End()
 
 	result, err := repo.writer.ExecContext(ctx, `
@@ -43,7 +43,7 @@ func (repo *repoSqlx) Create(ctx context.Context, newMeaning entities.MeaningReq
 }
 
 func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (*entities.Meaning, error) {
-	ctx, tr := tracer.Span(ctx, "repositories.sql.meanings.get_by_id")
+	ctx, tr := tracer.Span(ctx, "repositories.database.meanings.get_by_id")
 	defer tr.End()
 
 	var meaning entities.Meaning
@@ -61,7 +61,7 @@ func (repo *repoSqlx) GetByID(ctx context.Context, ID uint64) (*entities.Meaning
 }
 
 func (repo *repoSqlx) GetAll(ctx context.Context) ([]entities.Meaning, error) {
-	ctx, tr := tracer.Span(ctx, "repositories.sql.meanings.get_all")
+	ctx, tr := tracer.Span(ctx, "repositories.database.meanings.get_all")
 	defer tr.End()
 
 	meanings := make([]entities.Meaning, 0)
@@ -79,7 +79,7 @@ func (repo *repoSqlx) GetAll(ctx context.Context) ([]entities.Meaning, error) {
 }
 
 func (repo *repoSqlx) GetByWordID(ctx context.Context, wordID uint64) ([]entities.Meaning, error) {
-	ctx, tr := tracer.Span(ctx, "repositories.sql.meanings.get_by_word_id")
+	ctx, tr := tracer.Span(ctx, "repositories.database.meanings.get_by_word_id")
 	defer tr.End()
 
 	meanings := make([]entities.Meaning, 0)

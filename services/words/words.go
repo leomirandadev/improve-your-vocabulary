@@ -46,7 +46,6 @@ func (srv *services) Create(ctx context.Context, newWord entities.WordRequest) (
 }
 
 func (srv *services) GetAll(ctx context.Context, ownerID uint64) ([]entities.Word, error) {
-
 	ctx, tr := tracer.Span(ctx, "services.words.get_all")
 	defer tr.End()
 

@@ -10,6 +10,7 @@ import (
 	"github.com/leomirandadev/improve-your-vocabulary/services"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/logger"
 	"github.com/leomirandadev/improve-your-vocabulary/utils/token"
+	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer"
 )
 
 type controllers struct {
@@ -39,11 +40,14 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 // @Security ApiKeyAuth
 // @Router /users [post]
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx, tr := tracer.Span(ctx, "controllers.users.create")
+	defer tr.End()
 
 	var newUser entities.UserRequest
 	json.NewDecoder(r.Body).Decode(&newUser)
 
-	ctx := r.Context()
 	err := ctr.srv.User.Create(ctx, newUser)
 
 	if err != nil {
@@ -68,13 +72,15 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 // @Security ApiKeyAuth
 // @Router /users/auth [post]
 func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx, tr := tracer.Span(ctx, "controllers.users.auth")
+	defer tr.End()
 
 	var userLogin entities.UserAuth
 	json.NewDecoder(r.Body).Decode(&userLogin)
 
-	ctx := r.Context()
 	userFound, err := ctr.srv.User.GetUserByLogin(ctx, userLogin)
-
 	if err != nil {
 		ctr.log.Error("Ctrl.Auth: ", "Error on find a user", userLogin)
 		w.WriteHeader(http.StatusBadRequest)
@@ -104,6 +110,9 @@ func (ctr *controllers) Auth(w http.ResponseWriter, r *http.Request) {
 // @Router /users/{id} [get]
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	ctx, tr := tracer.Span(ctx, "controllers.users.get_by_id")
+	defer tr.End()
 
 	id := chi.URLParam(r, "id")
 	idUser, _ := strconv.ParseUint(id, 10, 64)

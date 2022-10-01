@@ -40,16 +40,16 @@ func New(srv *services.Container, log logger.Logger, tokenHasher token.TokenHash
 // @Security ApiKeyAuth
 // @Router /words [post]
 func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
-	var newWord entities.WordRequest
-	json.NewDecoder(r.Body).Decode(&newWord)
-
 	ctx := r.Context()
-
-	ownerID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
-	newWord.UserID = ownerID
 
 	ctx, tr := tracer.Span(ctx, "controllers.words.create")
 	defer tr.End()
+
+	var newWord entities.WordRequest
+	json.NewDecoder(r.Body).Decode(&newWord)
+
+	ownerID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
+	newWord.UserID = ownerID
 
 	wordCreated, err := ctr.srv.Word.Create(ctx, newWord)
 	if err != nil {
@@ -75,12 +75,12 @@ func (ctr *controllers) Create(w http.ResponseWriter, r *http.Request) {
 func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	ctx, tr := tracer.Span(ctx, "controllers.words.get_by_id")
+	defer tr.End()
+
 	id := chi.URLParam(r, "id")
 	wordID, _ := strconv.ParseUint(id, 10, 64)
 	ownerID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
-
-	ctx, tr := tracer.Span(ctx, "controllers.words.get_by_id")
-	defer tr.End()
 
 	word, err := ctr.srv.Word.GetByID(ctx, wordID, ownerID)
 	if err != nil {
@@ -103,13 +103,12 @@ func (ctr *controllers) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Security ApiKeyAuth
 // @Router /words [get]
 func (ctr *controllers) GetAll(w http.ResponseWriter, r *http.Request) {
-
-	ownerID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
-
 	ctx := r.Context()
 
 	ctx, tr := tracer.Span(ctx, "controllers.words.get_all")
 	defer tr.End()
+
+	ownerID, _ := strconv.ParseUint(r.Header.Get("payload_id"), 10, 64)
 
 	words, err := ctr.srv.Word.GetAll(ctx, ownerID)
 	if err != nil {
