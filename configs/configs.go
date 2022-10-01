@@ -1,8 +1,8 @@
 package configs
 
 import (
-	"github.com/leomirandadev/improve-your-vocabulary/utils/cache"
-	"github.com/leomirandadev/improve-your-vocabulary/utils/tracer/otel_jaeger"
+	"github.com/leomirandadev/improve-your-vocabulary/pkg/cache"
+	"github.com/leomirandadev/improve-your-vocabulary/pkg/tracer/otel_jaeger"
 	"github.com/spf13/viper"
 )
 

@@ -5,7 +5,7 @@ NAME = "improve-your-vocabulary"
 DB_CONNECTION = "root:root@(127.0.0.1:3306)/improve_your_vocabulary?charset=utf8mb4,utf8\u0026readTimeout=30s\u0026writeTimeout=30s&parseTime=true"
 
 docs:
-	@swag init
+	@swag init -g cmd/main.go
 
 setup: 
 	@echo "installing nodemon..."
@@ -19,7 +19,7 @@ setup:
 
 build: 
 	@echo $(NAME): Compilando o micro-serviço
-	@go build -o dist/$(NAME)/main
+	@go build -o dist/$(NAME)/main cmd/main.go 
 	@echo $(NAME): Construindo a imagem
 	@docker build -t $(NAME) .
 
@@ -40,10 +40,10 @@ down-local:
 	@docker compose -f "docker/tracer_dev/docker-compose.yml" down
 
 run: up-local
-	@go run main.go
+	@go run cmd/main.go
 
 run-watch: up-local
-	@nodemon --exec go run main.go --signal SIGTERM
+	@nodemon --exec go run cmd/main.go --signal SIGTERM
 
 mig-create: 
 	@goose -dir ./migrations create $(MIG_NAME) sql 
