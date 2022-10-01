@@ -69,12 +69,7 @@ func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache
 	cacheStore := cache.NewMemcache(configs.Cache, log)
 
 	tr := tracer.New(
-		otel_jaeger.NewCollector(otel_jaeger.Options{
-			ServiceName: configs.Tracer.ServiceName,
-			EndpointURL: configs.Tracer.EndpointURL,
-			Username:    configs.Tracer.Username,
-			Password:    configs.Tracer.Password,
-		}),
+		otel_jaeger.NewCollector(configs.Tracer),
 	)
 
 	return router, log, tokenGenerator, cacheStore, tr, configs
