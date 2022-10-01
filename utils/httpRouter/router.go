@@ -11,6 +11,7 @@ type Router interface {
 	PUT(uri string, f HandlerFunc)
 	DELETE(uri string, f HandlerFunc)
 	PATCH(uri string, f HandlerFunc)
+	ParseHandler(h http.HandlerFunc) HandlerFunc
 	SERVE(port string)
 }
 
@@ -23,4 +24,6 @@ type Context interface {
 	GetParam(param string) string
 	GetFromHeader(param string) string
 	Headers() http.Header
+	GetResponseWriter() http.ResponseWriter
+	GetRequestReader() *http.Request
 }

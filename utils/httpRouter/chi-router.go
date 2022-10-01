@@ -60,6 +60,12 @@ func (m *chiRouter) SERVE(port string) {
 	log.Fatal(http.ListenAndServe(port, chiDispatcher))
 }
 
+func (m *chiRouter) ParseHandler(h http.HandlerFunc) HandlerFunc {
+	return func(c Context) {
+		h(c.GetResponseWriter(), c.GetRequestReader())
+	}
+}
+
 type chiContext struct {
 	w http.ResponseWriter
 	r *http.Request
@@ -92,4 +98,12 @@ func (c chiContext) Decode(v interface{}) {
 
 func (c chiContext) Headers() http.Header {
 	return c.r.Header
+}
+
+func (c chiContext) GetResponseWriter() http.ResponseWriter {
+	return c.w
+}
+
+func (c chiContext) GetRequestReader() *http.Request {
+	return c.r
 }
