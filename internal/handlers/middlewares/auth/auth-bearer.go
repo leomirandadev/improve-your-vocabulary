@@ -110,9 +110,9 @@ func (m *middlewareJWT) verifyRoles(header http.Header, logged bool, roles ...st
 }
 
 func (m *middlewareJWT) InsertTokenFieldsOnPayload(token map[string]interface{}, header http.Header) {
-	header.Add("payload_id", strconv.FormatInt(int64(token["id"].(float64)), 10))
-	header.Add("payload_name", token["name"].(string))
-	header.Add("payload_nick_name", token["nick_name"].(string))
-	header.Add("payload_email", token["email"].(string))
-	header.Add("payload_role", token["role"].(string))
+	header.Add("payload.id", strconv.FormatInt(int64(token["id"].(float64)), 10))
+	header.Add("payload.name", token["name"].(string))
+	header.Add("payload.nick_name", token["nick_name"].(string))
+	header.Add("payload.email", token["email"].(string))
+	header.Add("payload.role", token["role"].(string))
 }

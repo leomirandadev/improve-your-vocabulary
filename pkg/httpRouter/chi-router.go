@@ -10,54 +10,54 @@ import (
 	"github.com/go-chi/chi"
 )
 
-type chiRouter struct{}
-
-var (
-	chiDispatcher = chi.NewRouter()
-)
+type chiRouter struct {
+	router *chi.Mux
+}
 
 func NewChiRouter() Router {
-	return &chiRouter{}
+	return &chiRouter{
+		router: chi.NewRouter(),
+	}
 }
 
-func (*chiRouter) POST(uri string, f HandlerFunc) {
-	chiDispatcher.Post(uri, func(w http.ResponseWriter, r *http.Request) {
+func (r *chiRouter) POST(uri string, f HandlerFunc) {
+	r.router.Post(uri, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		f(newChiContext(w, r))
 	})
 }
 
-func (*chiRouter) GET(uri string, f HandlerFunc) {
-	chiDispatcher.Get(uri, func(w http.ResponseWriter, r *http.Request) {
+func (r *chiRouter) GET(uri string, f HandlerFunc) {
+	r.router.Get(uri, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		f(newChiContext(w, r))
 	})
 }
 
-func (*chiRouter) PUT(uri string, f HandlerFunc) {
-	chiDispatcher.Put(uri, func(w http.ResponseWriter, r *http.Request) {
+func (r *chiRouter) PUT(uri string, f HandlerFunc) {
+	r.router.Put(uri, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		f(newChiContext(w, r))
 	})
 }
 
-func (*chiRouter) PATCH(uri string, f HandlerFunc) {
-	chiDispatcher.Patch(uri, func(w http.ResponseWriter, r *http.Request) {
+func (r *chiRouter) PATCH(uri string, f HandlerFunc) {
+	r.router.Patch(uri, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		f(newChiContext(w, r))
 	})
 }
 
-func (*chiRouter) DELETE(uri string, f HandlerFunc) {
-	chiDispatcher.Delete(uri, func(w http.ResponseWriter, r *http.Request) {
+func (r *chiRouter) DELETE(uri string, f HandlerFunc) {
+	r.router.Delete(uri, func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		f(newChiContext(w, r))
 	})
 }
 
-func (m *chiRouter) SERVE(port string) {
+func (r *chiRouter) SERVE(port string) {
 	fmt.Println("Online on http://localhost" + port)
-	log.Fatal(http.ListenAndServe(port, chiDispatcher))
+	log.Fatal(http.ListenAndServe(port, r.router))
 }
 
 func (m *chiRouter) ParseHandler(h http.HandlerFunc) HandlerFunc {
@@ -85,7 +85,7 @@ func (c chiContext) JSON(status int, data interface{}) {
 }
 
 func (c chiContext) GetParam(param string) string {
-	return chi.URLParam(c.r, "id")
+	return chi.URLParam(c.r, param)
 }
 
 func (c chiContext) GetFromHeader(param string) string {
