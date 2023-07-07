@@ -5,9 +5,9 @@ NAME = "improve-your-vocabulary"
 DB_CONNECTION = "root:root@(127.0.0.1:3306)/improve_your_vocabulary?charset=utf8mb4,utf8\u0026readTimeout=30s\u0026writeTimeout=30s&parseTime=true"
 
 docs:
-	@swag init -g cmd/main.go
+	@swag init -g cmd/api/main.go
 
-setup: 
+install: 
 	@echo "installing nodemon..."
 	@npm install -g nodemon
 	@echo "installing goose..."
@@ -19,7 +19,7 @@ setup:
 
 build: 
 	@echo $(NAME): Compilando o micro-serviço
-	@go build -o dist/$(NAME)/main cmd/main.go 
+	@GOOS=linux go build -o dist/$(NAME)/api cmd/api/*.go 
 	@echo $(NAME): Construindo a imagem
 	@docker build -t $(NAME) .
 
@@ -29,21 +29,21 @@ docker-up:
 docker-down: 
 	@docker compose -f "docker/docker-compose.yml" down
 
-up-local: 
+local-up: 
 	@docker compose -f "docker/db_dev/docker-compose.yml" up -d --build
 	@docker compose -f "docker/memcached_dev/docker-compose.yml" up -d --build
 	@docker compose -f "docker/tracer_dev/docker-compose.yml" up -d --build
 
-down-local: 
+local-down: 
 	@docker compose -f "docker/db_dev/docker-compose.yml" down
 	@docker compose -f "docker/memcached_dev/docker-compose.yml" down
 	@docker compose -f "docker/tracer_dev/docker-compose.yml" down
 
-run: up-local
-	@cd cmd && go run main.go
+run: local-up
+	@go run cmd/api/*.go
 
-run-watch: up-local
-	@cd cmd && nodemon --exec go run main.go --signal SIGTERM
+run-watch: local-up
+	@cd cmd && nodemon --exec go run cmd/api/*.go --signal SIGTERM
 
 mig-create: 
 	@goose -dir ./migrations create $(MIG_NAME) sql 
@@ -66,3 +66,9 @@ test:
 
 test-cover: test
 	@go tool cover -html=coverage.out 
+
+open-swagger:
+	open http://localhost:8080/swagger/index.html
+
+open-jaeger:
+	open http://localhost:16686/search

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/leomirandadev/improve-your-vocabulary/configs"
@@ -22,7 +20,6 @@ import (
 // @in header
 // @name Authorization
 func main() {
-
 	router, log, tokenGenerator, cacheStore, tr, configs := toolsInit()
 	defer tr.Close()
 
@@ -55,14 +52,14 @@ func main() {
 }
 
 func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, tracer.ITracer, configs.Config) {
+	log := logger.NewLogrusLog()
+
 	configs, err := configs.LoadConfig(".")
 	if err != nil {
 		log.Fatal("configs not loaded", err)
 	}
 
 	router := httpRouter.NewChiRouter()
-
-	log := logger.NewLogrusLog()
 
 	tokenGenerator := token.NewJWT()
 

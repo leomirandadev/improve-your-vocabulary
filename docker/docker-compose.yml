@@ -1,6 +1,6 @@
-version: '3.4'
+version: '3.8'
 services:
-  cedap:
+  api:
     image: improve-your-vocabulary
     restart: always
     ports:
