@@ -1,13 +1,13 @@
 FROM alpine:3.7
 
-COPY ./dist/improve-your-vocabulary/main /app/improve-your-vocabulary/main
-COPY ./cmd/config.json /app/improve-your-vocabulary/main
-
 WORKDIR /app
+
+COPY ./dist/improve-your-vocabulary/api ./
+COPY ./config.json ./
 
 # timezone
 RUN apk update && apk --no-cache add tzdata 
 
 EXPOSE 8080
 
-ENTRYPOINT ./improve-your-vocabulary/main
+ENTRYPOINT ./api
