@@ -61,8 +61,8 @@ mock:
 	@go generate ./...
 
 test:
-	@go test -v -p 1 -cover -failfast ./... -coverprofile=coverage.out
-	@go tool cover -func coverage.out | awk 'END{print sprintf("coverage: %s", $$3)}'
+	@go test -v -coverpkg=./... -coverprofile=coverage.out ./...
+	@go tool cover -func coverage.out
 
 test-cover: test
 	@go tool cover -html=coverage.out 
