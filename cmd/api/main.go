@@ -3,12 +3,12 @@ package main
 import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"github.com/leomirandadev/improve-your-vocabulary/configs"
 	"github.com/leomirandadev/improve-your-vocabulary/internal/controllers"
 	"github.com/leomirandadev/improve-your-vocabulary/internal/handlers"
 	"github.com/leomirandadev/improve-your-vocabulary/internal/repositories"
 	"github.com/leomirandadev/improve-your-vocabulary/internal/services"
 	"github.com/leomirandadev/improve-your-vocabulary/pkg/cache"
+	"github.com/leomirandadev/improve-your-vocabulary/pkg/envs"
 	"github.com/leomirandadev/improve-your-vocabulary/pkg/httpRouter"
 	"github.com/leomirandadev/improve-your-vocabulary/pkg/logger"
 	"github.com/leomirandadev/improve-your-vocabulary/pkg/token"
@@ -51,10 +51,22 @@ func main() {
 	router.SERVE(configs.Port)
 }
 
-func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, tracer.ITracer, configs.Config) {
+type Config struct {
+	Port     string              `mapstructure:"port"`
+	Env      string              `mapstructure:"env"`
+	Cache    cache.Options       `mapstructure:"cache"`
+	Tracer   otel_jaeger.Options `mapstructure:"tracer"`
+	Database struct {
+		Reader string `mapstructure:"reader"`
+		Writer string `mapstructure:"writer"`
+	} `mapstructure:"database"`
+}
+
+func toolsInit() (httpRouter.Router, logger.Logger, token.TokenHash, cache.Cache, tracer.ITracer, Config) {
 	log := logger.NewLogrusLog()
 
-	configs, err := configs.LoadConfig(".")
+	var configs Config
+	err := envs.Load(".", &configs)
 	if err != nil {
 		log.Fatal("configs not loaded", err)
 	}
